@@ -98,13 +98,13 @@ class Player(Entity):
             self.velocity.y = -self.move_speed * deltaTime
         if K_s in keys:
             self.velocity.y = self.move_speed * deltaTime
-        if K_a in keys:
+        if K_a in keys and self.position.x:
             self.velocity.x = -self.move_speed * 0.8 * deltaTime
-        if K_d in keys:
+        if K_d in keys and self.position.x:
             self.velocity.x = self.move_speed * 0.8 * deltaTime
-        if not K_w in keys and not K_s in keys:
+        if not K_w in keys and not K_s in keys or K_w in keys and K_s in keys:
             self.velocity.y = 0
-        if not K_a in keys and not K_d in keys:
+        if not K_a in keys and not K_d in keys or K_a in keys and K_d in keys:
             self.velocity.x = 0
 
         #shoot
