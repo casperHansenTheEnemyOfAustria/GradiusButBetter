@@ -114,6 +114,57 @@ class Player(Entity):
         #render
         super().draw()
 
+class Enemy(Entity):
+    def __init__(self, position_x, position_y, maxHP, move_speed, screen, sprite, bullet_sprite, index):
+
+        super().__init__(position_x, position_y, maxHP, screen, sprite)
+
+        self.bullet_manager = BulletManager(screen, bullet_sprite)
+
+        self.move_speed = move_speed
+
+        self.cycle = 1
+
+    def update(self, events):
+        super().update(events)
+
+        if self.position.x > SCREEN_WIDTH*0.8 and self.hp > 0:
+            #spawn behaviour
+            self.velocity.x = -1 * self.move_speed * deltaTime
+            self.velocity.y = self.move_speed * self.cycle / 2 * deltaTime
+        elif self.hp > 0:
+            #live behaviour
+            self.velocity.x = 0
+            self.velocity.y = self.move_speed * self.cycle / 2 * deltaTime
+        else:
+            #die
+            pass
+
+        if self.position.y > SCREEN_HEIGHT * 0.8:
+            self.cycle = -1
+
+        if self.position.y < SCREEN_HEIGHT * 0.2:
+            self.cycle = 1
+        
+        super().draw()
+
+    
+class EnemyManager:
+    def __init__(self, start):
+
+        self.start = start
+
+        self.enemies = []
+        self.last_time = 0
+
+    def update(self, events):
+        time = pygame.time.get_ticks()
+        if time - self.last_time > self.start:
+            self.enemies.append(Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * 0.3, 50, randint(1, 4) / 10, screen, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), len(self.enemies)))
+            objects.append(self.enemies[len(self.enemies)-1])
+            self.last_time = time
+
+
 class Bullet(GameObject):
     def __init__(self, position_x, position_y, direction, screen, sprite): #Add Damage Later
         super().__init__(position_x, position_y, screen, sprite)
@@ -160,6 +211,7 @@ objects.append(Player(600, 300, 3, 0.6, screen, pygame.transform.scale(player_sp
 
 #enemy sprites
 enemy_sprite = pygame.image.load('Sprites/Enemy.png').convert_alpha()
+#objects.append(Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * 0.3, 50, 0.1, screen, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5))))
 
 #explosion stages
 explosion_1 = pygame.image.load('Sprites/Exp1.png').convert_alpha()
@@ -170,6 +222,8 @@ explosion_5 = pygame.image.load('Sprites/Exp5.png').convert_alpha()
 
 #game manager
 game_manager = GameManager(objects)
+
+objects.append(EnemyManager(10000))
 
 #Game Loop
 while True:
