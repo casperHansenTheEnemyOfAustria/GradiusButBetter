@@ -291,7 +291,7 @@ while True:
     #global events
     for event in events:
         #closes the game
-        if event.type == QUIT or event.type == pygame.K_ESCAPE:
+        if event.type == QUIT or event.type == K_ESCAPE:
             quit()
     
     pygame.display.update()
