@@ -14,11 +14,15 @@ BASE_ATTACK = 5
 objects = []
 keys = [] 
 bullets = []
+enemies = []
 gamestate = Gamestate.MENU
 deltaTime = 1
 
 #--------------------
-#classes, gameobjects and methods
+#classes, functions, gameobjects and methods
+
+def check_collision(hitbox1, hitbox2):
+    return hitbox1.colliderect(hitbox2)
 
 def change_gamestate(new_state):
     global gamestate
@@ -41,7 +45,6 @@ class MenuManager:
         for event in events:
             if event.type == MOUSEBUTTONUP:
                 for button in self._buttons:
-                    print(button.is_clicked(event.pos))
                     if button.is_clicked(event.pos):
                         button.click()
                 continue 
@@ -79,6 +82,8 @@ class GameObject:
     def __init__(self, position_x, position_y, screen, sprite):
         self.position = pygame.Vector2(position_x, position_y)
         self.velocity = pygame.Vector2(0, 0)
+
+        self.state = 'alive'
         
         self.sprite = sprite
         self.screen = screen
@@ -97,6 +102,10 @@ class GameObject:
     def draw(self):
         self.screen.blit(self.sprite,self.position)
 
+    def destroy(self):
+        
+        objects.remove(self)
+
 
 class Entity(GameObject):
     def __init__(self, position_x, position_y, maxHP, screen, sprite):
@@ -106,6 +115,10 @@ class Entity(GameObject):
         self._maxHP = maxHP
 
         self.hp = maxHP
+
+        self.hits = 0
+
+        self.last_time = 0
 
     def take_damage(self):
         self.hp = max(0, self.hp - (randint(1, 10) + BASE_ATTACK))
@@ -161,16 +174,22 @@ class Enemy(Entity):
     def update(self, events):
         super().update(events)
 
+        #super().check_bullets()
+
         if self.position.x > SCREEN_WIDTH*0.8 and self.hp > 0:
             #spawn behaviour
             self.velocity.x = -1 * self.move_speed * deltaTime
             self.velocity.y = self.move_speed * self.cycle / 2 * deltaTime
         elif self.hp > 0:
             #live behaviour
-            self.velocity.x = 0
+            self.velocity.x = -0.4 * self.move_speed * deltaTime
             self.velocity.y = self.move_speed * self.cycle / 2 * deltaTime
         else:
             #die
+            self.velocity = pygame.Vector2(0, 0)
+            #Explosion
+            enemies.remove(self)
+            super().destroy()
             pass
 
         if self.position.y > SCREEN_HEIGHT * 0.8:
@@ -184,17 +203,20 @@ class Enemy(Entity):
     
 class EnemyManager:
     def __init__(self, start):
+        
+        if start == 'random':
+            self.start = randint(1000, 20000)
+        else:
+            self.start = start
 
-        self.start = start
-
-        self.enemies = []
         self.last_time = 0
 
     def update(self, events):
+        global enemies
         time = pygame.time.get_ticks()
         if time - self.last_time > self.start:
-            self.enemies.append(Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * 0.3, 50, randint(1, 4) / 10, screen, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), len(self.enemies)))
-            objects.append(self.enemies[len(self.enemies)-1])
+            enemies.append(Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * 0.3, randint(15, 150), randint(1, 4) / 10, screen, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), len(enemies)))
+            objects.append(enemies[len(enemies)-1])
             self.last_time = time
 
 
@@ -203,13 +225,25 @@ class Bullet(GameObject):
         super().__init__(position_x, position_y, screen, sprite)
         self.direction = direction
 
+        self.last_time = 0
+
     def update(self, events):
         super().update(events)
         super().draw()
+        global enemies
+        time = pygame.time.get_ticks()
+        if self.direction == 1:
+            for enemy in enemies:
+                if check_collision(self.hitbox, enemy.hitbox) > 0:
+                    bullets.remove(self)
+                    super().destroy()
+                    if time - self.last_time > 500:
+                        enemy.take_damage()
+                        self.last_time = time
         self.velocity.x = (self.direction > 0) * 3 * deltaTime
         if self.position.x >= SCREEN_WIDTH:
-            objects.remove(self)
             bullets.remove(self)
+            super().destroy()
 
 class BulletManager:
     def __init__(self, screen, sprite):
@@ -272,7 +306,7 @@ images = [player_menu_image,bullet_menu_image1,bullet_menu_image2,bullet_menu_im
 menu_manager = MenuManager(buttons,images)
 game_manager = GameManager(objects)
 
-objects.append(EnemyManager(10000))
+objects.append(EnemyManager(3000))
 
 #Game Loop
 while True:
