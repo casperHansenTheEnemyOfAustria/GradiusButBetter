@@ -3,6 +3,8 @@ import pygame, sys
 from pygame.locals import *
 from random import *
 from math import *
+from gamestates import Gamestate
+import objects as obj
 
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 600
@@ -12,11 +14,45 @@ BASE_ATTACK = 5
 objects = []
 keys = [] 
 bullets = []
-
+gamestate = Gamestate.MENU
 deltaTime = 1
 
 #--------------------
 #classes, gameobjects and methods
+
+def change_gamestate(new_state):
+    global gamestate
+    pygame.display.set_caption(str(new_state))
+    gamestate = new_state
+
+
+def quit():
+    pygame.quit
+    sys.exit()
+
+
+class MenuManager:
+    def __init__(self, objects, images):
+        self._buttons = buttons
+        self._images = images
+
+    #player control
+    def update(self, events):
+        for event in events:
+            if event.type == MOUSEBUTTONUP:
+                for button in self._buttons:
+                    print(button.is_clicked(event.pos))
+                    if button.is_clicked(event.pos):
+                        button.click()
+                continue 
+           
+        for buttons in self._buttons:
+            buttons.render()
+
+        for image in self._images:
+            image.render()
+
+
 class GameManager:
     def __init__(self, objects):
         self._objects = objects
@@ -31,9 +67,6 @@ class GameManager:
             if event.type == KEYUP:
                 keys.remove(event.key)
                 continue
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
                 #continue
         for object in self._objects:
             object.update(events)
@@ -41,7 +74,6 @@ class GameManager:
         deltaTime = (pygame.time.get_ticks() - self.last_time)
         self.last_time = pygame.time.get_ticks()
         
-
 
 class GameObject:
     def __init__(self, position_x, position_y, screen, sprite):
@@ -64,6 +96,7 @@ class GameObject:
 
     def draw(self):
         self.screen.blit(self.sprite,self.position)
+
 
 class Entity(GameObject):
     def __init__(self, position_x, position_y, maxHP, screen, sprite):
@@ -181,9 +214,7 @@ class Bullet(GameObject):
 class BulletManager:
     def __init__(self, screen, sprite):
         self.last_time = pygame.time.get_ticks()
-
         self.sprite = sprite
-
         self.screen = screen
 
     def shoot(self, origin_x, origin_y, direction):
@@ -201,7 +232,9 @@ pygame.init()
 
 #Screen options
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption(str(gamestate))
 
+## game assets
 #sprite for the bullet
 bullet_sprite = pygame.image.load('Sprites/Bullet.png').convert_alpha()
 
@@ -220,7 +253,23 @@ explosion_3 = pygame.image.load('Sprites/Exp3.png').convert_alpha()
 explosion_4 = pygame.image.load('Sprites/Exp4.png').convert_alpha()
 explosion_5 = pygame.image.load('Sprites/Exp5.png').convert_alpha()
 
+## menu assets
+
+start_game = obj.Button(lambda:change_gamestate(Gamestate.RUNNING),(SCREEN_WIDTH//2)-80,200,screen, 'Start!', 'comicsansms', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))
+exit_game = obj.Button(quit,(SCREEN_WIDTH//2)-80,320,screen, 'QUIT', 'comicsansms', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))
+
+player_menu_image = obj.Image(100,80,screen,10,player_sprite)
+bullet_menu_image1 = obj.Image(400,100,screen,10,bullet_sprite)
+bullet_menu_image2 = obj.Image(600,100,screen,10,bullet_sprite)
+bullet_menu_image3 = obj.Image(800,100,screen,10,bullet_sprite)
+bullet_menu_image4 = obj.Image(1000,100,screen,10,bullet_sprite)
+
+
+buttons = [start_game,exit_game]
+images = [player_menu_image,bullet_menu_image1,bullet_menu_image2,bullet_menu_image3,bullet_menu_image4]
+
 #game manager
+menu_manager = MenuManager(buttons,images)
 game_manager = GameManager(objects)
 
 objects.append(EnemyManager(10000))
@@ -229,8 +278,20 @@ objects.append(EnemyManager(10000))
 while True:
     #fills the screen with black to clean it
     screen.fill((0, 0, 0))
-    
     events = pygame.event.get()
-    game_manager.update(events)
+
+    if gamestate == Gamestate.MENU:
+        menu_manager.update(events)
+        pass
+
+    if gamestate == Gamestate.RUNNING:
+        game_manager.update(events)
+        pass
+
+    #global events
+    for event in events:
+        #closes the game
+        if event.type == QUIT or event.type == pygame.K_ESCAPE:
+            quit()
     
     pygame.display.update()
