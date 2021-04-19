@@ -36,7 +36,7 @@ def quit():
 
 
 class MenuManager:
-    def __init__(self, objects, images):
+    def __init__(self, buttons, images):
         self._buttons = buttons
         self._images = images
 
@@ -325,7 +325,7 @@ while True:
     #global events
     for event in events:
         #closes the game
-        if event.type == QUIT or event.type == K_ESCAPE:
+        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
             quit()
     
     pygame.display.update()
