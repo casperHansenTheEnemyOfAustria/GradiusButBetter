@@ -72,7 +72,7 @@ class GameManager:
             if event.type == KEYDOWN:
                 keys.add(event.key)
                 continue #SPEED, eller så har man elifs, troligtvist fortfarande snabbare
-            if event.type == KEYUP and len(keys) > 0:
+            if event.type == KEYUP and event.key in keys:
                 keys.remove(event.key)
                 continue
                 #continue
@@ -250,12 +250,15 @@ class Bullet(GameObject):
         self.velocity.x = (self.direction > 0) * 3 * deltaTime
         if self.direction == 1:
             for enemy in enemies:
-                if check_collision(self.hitbox, enemy.hitbox) > 0:
-                    bullets.remove(self)
-                    super().destroy()
+                if check_collision(self.hitbox, enemy.hitbox) > 0 :
                     if time - self.last_time > 500:
                         enemy.take_damage()
                         self.last_time = time
+                    
+                    if self in bullets:
+                        bullets.remove(self)
+                        super().destroy()
+                    
         elif self.position.x >= SCREEN_WIDTH:
             bullets.remove(self)
             super().destroy()
@@ -332,10 +335,12 @@ def reset_game():
     global objects
     global keys
     global bullets
+    global enemies
     
     objects = []
     keys = set([])
     bullets = []
+    enemies = []
     
     start_game()
     pass
