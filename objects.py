@@ -17,8 +17,8 @@ class __Object():
 
 
 class Text(__Object):
+    
     def __init__(self, position_x:float, position_y:float, screen:pygame.Surface, text:str = 'Placeholder', font:str = 'comicsansms', text_size:int = 20, text_color:pygame.Color = pygame.Color(255,255,255), background_color:pygame.Color = pygame.Color(0,0,0)):
-        
         self.text = text
         self.text_color = text_color
         self.background_color = background_color
@@ -39,8 +39,8 @@ class Text(__Object):
 
 
 class Button(Text):
+    
     def __init__(self, command, position_x:float, position_y:float, screen:pygame.Surface, text:str = 'Placeholder', font:str = 'comicsansms', text_size:int = 20, text_color:pygame.Color = pygame.Color(255,255,255), background_color:pygame.Color = pygame.Color(0,0,0)):
-        
         self.command = command
         super().__init__(position_x, position_y, screen, text, font, text_size, text_color, background_color)
 

@@ -11,10 +11,13 @@ SCREEN_HEIGHT = 600
 BASE_ATTACK = 5
 
 #Lists for global management
+buttons = []
+images = []
 objects = []
 keys = [] 
 bullets = []
 enemies = []
+clock = pygame.time.Clock()
 gamestate = Gamestate.MENU
 deltaTime = 1
 
@@ -82,9 +85,7 @@ class GameObject:
     def __init__(self, position_x, position_y, screen, sprite):
         self.position = pygame.Vector2(position_x, position_y)
         self.velocity = pygame.Vector2(0, 0)
-
         self.state = 'alive'
-        
         self.sprite = sprite
         self.screen = screen
 
@@ -103,7 +104,6 @@ class GameObject:
         self.screen.blit(self.sprite,self.position)
 
     def destroy(self):
-        
         objects.remove(self)
 
 
@@ -190,7 +190,6 @@ class Enemy(Entity):
             #Explosion
             enemies.remove(self)
             super().destroy()
-            pass
 
         if self.position.y > SCREEN_HEIGHT * 0.8:
             self.cycle = -1
@@ -232,6 +231,7 @@ class Bullet(GameObject):
         super().draw()
         global enemies
         time = pygame.time.get_ticks()
+        self.velocity.x = (self.direction > 0) * 3 * deltaTime
         if self.direction == 1:
             for enemy in enemies:
                 if check_collision(self.hitbox, enemy.hitbox) > 0:
@@ -240,8 +240,7 @@ class Bullet(GameObject):
                     if time - self.last_time > 500:
                         enemy.take_damage()
                         self.last_time = time
-        self.velocity.x = (self.direction > 0) * 3 * deltaTime
-        if self.position.x >= SCREEN_WIDTH:
+        elif self.position.x >= SCREEN_WIDTH:
             bullets.remove(self)
             super().destroy()
 
@@ -288,21 +287,16 @@ explosion_4 = pygame.image.load('Sprites/Exp4.png').convert_alpha()
 explosion_5 = pygame.image.load('Sprites/Exp5.png').convert_alpha()
 
 ## menu assets
+buttons.append(obj.Button(lambda:change_gamestate(Gamestate.RUNNING),(SCREEN_WIDTH//2)-80,200,screen, 'Start!', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to start the game
+buttons.append(obj.Button(quit,(SCREEN_WIDTH//2)-80,320,screen, 'QUIT', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to shut down the game
 
-start_game = obj.Button(lambda:change_gamestate(Gamestate.RUNNING),(SCREEN_WIDTH//2)-80,200,screen, 'Start!', 'comicsansms', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))
-exit_game = obj.Button(quit,(SCREEN_WIDTH//2)-80,320,screen, 'QUIT', 'comicsansms', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))
+images.append(obj.Image(100,80,screen,10,player_sprite)) # player sprite for the menu
+images.append(obj.Image(400,100,screen,10,bullet_sprite)) # 1st bullet sprite for the menu
+images.append(obj.Image(600,100,screen,10,bullet_sprite)) # 2nd bullet sprite for the menu
+images.append(obj.Image(800,100,screen,10,bullet_sprite)) # 3rd bullet sprite for the menu
+images.append(obj.Image(1000,100,screen,10,bullet_sprite)) # 4th bullet sprite for the menu
 
-player_menu_image = obj.Image(100,80,screen,10,player_sprite)
-bullet_menu_image1 = obj.Image(400,100,screen,10,bullet_sprite)
-bullet_menu_image2 = obj.Image(600,100,screen,10,bullet_sprite)
-bullet_menu_image3 = obj.Image(800,100,screen,10,bullet_sprite)
-bullet_menu_image4 = obj.Image(1000,100,screen,10,bullet_sprite)
-
-
-buttons = [start_game,exit_game]
-images = [player_menu_image,bullet_menu_image1,bullet_menu_image2,bullet_menu_image3,bullet_menu_image4]
-
-#game manager
+#game managers
 menu_manager = MenuManager(buttons,images)
 game_manager = GameManager(objects)
 
@@ -312,20 +306,23 @@ objects.append(EnemyManager(3000))
 while True:
     #fills the screen with black to clean it
     screen.fill((0, 0, 0))
+    clock.tick(60)
     events = pygame.event.get()
-
     if gamestate == Gamestate.MENU:
         menu_manager.update(events)
-        pass
 
     if gamestate == Gamestate.RUNNING:
         game_manager.update(events)
-        pass
 
     #global events
     for event in events:
+
         #closes the game
         if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
             quit()
+            
+        if event.type == KEYDOWN:
+            if event.key == K_m:
+                change_gamestate(Gamestate.MENU)
     
     pygame.display.update()
