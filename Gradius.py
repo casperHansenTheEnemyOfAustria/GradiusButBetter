@@ -169,7 +169,7 @@ class Enemy(Entity):
 
         self.move_speed = move_speed
 
-        self.cycle = 1
+        self.cycle = choice([1, -1])
 
     def update(self, events):
         super().update(events)
@@ -215,7 +215,7 @@ class EnemyManager:
         global enemies
         time = pygame.time.get_ticks()
         if time - self.last_time > self.start:
-            enemies.append(Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * 0.3, randint(15, 150), randint(1, 4) / 10, screen, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), len(enemies)))
+            enemies.append(Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(15, 150), randint(1, 4) / 10, screen, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), len(enemies)))
             objects.append(enemies[len(enemies)-1])
             self.last_time = time
 
@@ -253,7 +253,7 @@ class BulletManager:
 
     def shoot(self, origin_x, origin_y, direction):
         if pygame.time.get_ticks() > self.last_time + 150:
-            bullets.append(Bullet(origin_x, origin_y + 5, direction, self.screen, self.sprite))
+            bullets.append(Bullet(origin_x, origin_y + 30, direction, self.screen, self.sprite))
             objects.append(bullets[len(bullets)-1])
             self.last_time = pygame.time.get_ticks()
             
