@@ -17,7 +17,6 @@ objects = []
 keys = [] 
 bullets = []
 enemies = []
-clock = pygame.time.Clock()
 gamestate = Gamestate.MENU
 deltaTime = 1
 
@@ -60,9 +59,11 @@ class MenuManager:
 
 
 class GameManager:
+    
     def __init__(self, objects):
         self._objects = objects
         self.last_time = pygame.time.get_ticks()
+
 
     #player control
     def update(self, events):
@@ -82,6 +83,7 @@ class GameManager:
         
 
 class GameObject:
+    
     def __init__(self, position_x, position_y, screen, sprite):
         self.position = pygame.Vector2(position_x, position_y)
         self.velocity = pygame.Vector2(0, 0)
@@ -89,12 +91,14 @@ class GameObject:
         self.sprite = sprite
         self.screen = screen
 
+
     @property
     def hitbox(self):
         hitbox = self.sprite.get_rect()
         hitbox.x = self.position.x
         hitbox.y = self.position.y
         return hitbox
+
     
     # Flyttar objektet
     def update(self, events):
@@ -108,6 +112,7 @@ class GameObject:
 
 
 class Entity(GameObject):
+    
     def __init__(self, position_x, position_y, maxHP, screen, sprite):
 
         super().__init__(position_x, position_y, screen, sprite)
@@ -120,14 +125,17 @@ class Entity(GameObject):
 
         self.last_time = 0
 
+
     def take_damage(self):
         self.hp = max(0, self.hp - (randint(1, 10) + BASE_ATTACK))
+    
     
     def heal(self):
         self.hp = min(self._maxHP, self.hp + randint(5, 10))
     
 
 class Player(Entity):
+    
     def __init__(self, position_x, position_y, maxHP, move_speed, screen, sprite, bullet_sprite):
         
         super().__init__(position_x, position_y, maxHP, screen, sprite)
@@ -135,6 +143,7 @@ class Player(Entity):
         self.bullet_manager = BulletManager(screen, bullet_sprite)
 
         self.move_speed = move_speed
+
 
     def update(self, events):
         super().update(events)
@@ -161,6 +170,7 @@ class Player(Entity):
         super().draw()
 
 class Enemy(Entity):
+    
     def __init__(self, position_x, position_y, maxHP, move_speed, screen, sprite, bullet_sprite, index):
 
         super().__init__(position_x, position_y, maxHP, screen, sprite)
@@ -170,6 +180,7 @@ class Enemy(Entity):
         self.move_speed = move_speed
 
         self.cycle = choice([1, -1])
+
 
     def update(self, events):
         super().update(events)
@@ -201,6 +212,7 @@ class Enemy(Entity):
 
     
 class EnemyManager:
+    
     def __init__(self, start):
         
         if start == 'random':
@@ -209,6 +221,7 @@ class EnemyManager:
             self.start = start
 
         self.last_time = 0
+
 
     def update(self, events):
         global enemies
@@ -220,11 +233,13 @@ class EnemyManager:
 
 
 class Bullet(GameObject):
+    
     def __init__(self, position_x, position_y, direction, screen, sprite): #Add Damage Later
         super().__init__(position_x, position_y, screen, sprite)
         self.direction = direction
 
         self.last_time = 0
+
 
     def update(self, events):
         super().update(events)
@@ -245,10 +260,12 @@ class Bullet(GameObject):
             super().destroy()
 
 class BulletManager:
+    
     def __init__(self, screen, sprite):
         self.last_time = pygame.time.get_ticks()
         self.sprite = sprite
         self.screen = screen
+
 
     def shoot(self, origin_x, origin_y, direction):
         if pygame.time.get_ticks() > self.last_time + 150:
@@ -287,14 +304,14 @@ explosion_4 = pygame.image.load('Sprites/Exp4.png').convert_alpha()
 explosion_5 = pygame.image.load('Sprites/Exp5.png').convert_alpha()
 
 ## menu assets
-buttons.append(obj.Button(lambda:change_gamestate(Gamestate.RUNNING),(SCREEN_WIDTH//2)-80,200,screen, 'Start!', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to start the game
-buttons.append(obj.Button(quit,(SCREEN_WIDTH//2)-80,320,screen, 'QUIT', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to shut down the game
+buttons.append(obj.Button(lambda:change_gamestate(Gamestate.RUNNING),(SCREEN_WIDTH//2)-80,200,screen, ' Start! ', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to start the game
+buttons.append(obj.Button(quit,(SCREEN_WIDTH//2)-80,320,screen, ' QUIT ', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to shut down the game
 
 images.append(obj.Image(100,80,screen,10,player_sprite)) # player sprite for the menu
-images.append(obj.Image(400,100,screen,10,bullet_sprite)) # 1st bullet sprite for the menu
-images.append(obj.Image(600,100,screen,10,bullet_sprite)) # 2nd bullet sprite for the menu
-images.append(obj.Image(800,100,screen,10,bullet_sprite)) # 3rd bullet sprite for the menu
-images.append(obj.Image(1000,100,screen,10,bullet_sprite)) # 4th bullet sprite for the menu
+images.append(obj.Image(400,140,screen,10,bullet_sprite)) # 1st bullet sprite for the menu
+images.append(obj.Image(600,140,screen,10,bullet_sprite)) # 2nd bullet sprite for the menu
+images.append(obj.Image(800,140,screen,10,bullet_sprite)) # 3rd bullet sprite for the menu
+images.append(obj.Image(1000,140,screen,10,bullet_sprite)) # 4th bullet sprite for the menu
 
 #game managers
 menu_manager = MenuManager(buttons,images)
@@ -306,7 +323,6 @@ objects.append(EnemyManager(3000))
 while True:
     #fills the screen with black to clean it
     screen.fill((0, 0, 0))
-    clock.tick(60)
     events = pygame.event.get()
     if gamestate == Gamestate.MENU:
         menu_manager.update(events)
