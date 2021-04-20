@@ -14,7 +14,7 @@ BASE_ATTACK = 5
 buttons = []
 images = []
 objects = []
-keys = [] 
+keys = set([])
 bullets = []
 enemies = []
 gamestate = Gamestate.MENU
@@ -25,6 +25,7 @@ deltaTime = 1
 
 def check_collision(hitbox1, hitbox2):
     return hitbox1.colliderect(hitbox2)
+
 
 def change_gamestate(new_state):
     global gamestate
@@ -69,9 +70,9 @@ class GameManager:
     def update(self, events):
         for event in events:
             if event.type == KEYDOWN:
-                keys.append(event.key)
+                keys.add(event.key)
                 continue #SPEED, eller så har man elifs, troligtvist fortfarande snabbare
-            if event.type == KEYUP:
+            if event.type == KEYUP and len(keys) > 0:
                 keys.remove(event.key)
                 continue
                 #continue
@@ -118,12 +119,12 @@ class Entity(GameObject):
         super().__init__(position_x, position_y, screen, sprite)
 
         self._maxHP = maxHP
-
         self.hp = maxHP
 
         self.hits = 0
 
         self.last_time = 0
+        
 
 
     def take_damage(self):
@@ -132,7 +133,7 @@ class Entity(GameObject):
     
     def heal(self):
         self.hp = min(self._maxHP, self.hp + randint(5, 10))
-    
+        
 
 class Player(Entity):
     
@@ -314,10 +315,34 @@ images.append(obj.Image(800,140,screen,10,bullet_sprite)) # 3rd bullet sprite fo
 images.append(obj.Image(1000,140,screen,10,bullet_sprite)) # 4th bullet sprite for the menu
 
 #game managers
-menu_manager = MenuManager(buttons,images)
-game_manager = GameManager(objects)
 
-objects.append(EnemyManager(3000))
+
+def start_game():
+    global game_manager
+    global objects
+    
+    objects.append(Player(600, 300, 3, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
+    objects.append(EnemyManager(3000))
+    
+    game_manager = GameManager(objects)
+    
+    pass    
+
+def reset_game():
+    global objects
+    global keys
+    global bullets
+    
+    objects = []
+    keys = set([])
+    bullets = []
+    
+    start_game()
+    pass
+
+menu_manager = MenuManager(buttons,images)
+game_manager = None
+
 
 #Game Loop
 while True:
@@ -328,7 +353,10 @@ while True:
         menu_manager.update(events)
 
     if gamestate == Gamestate.RUNNING:
-        game_manager.update(events)
+        if game_manager:            
+            game_manager.update(events)
+        else:
+            start_game()
 
     #global events
     for event in events:
@@ -339,6 +367,11 @@ while True:
             
         if event.type == KEYDOWN:
             if event.key == K_m:
+                reset_game()
                 change_gamestate(Gamestate.MENU)
+            
+            if event.key == K_r:
+                reset_game()
+                
     
     pygame.display.update()
