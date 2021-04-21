@@ -170,7 +170,10 @@ class Player(Entity):
 
         #shoot
         if K_SPACE in keys:
-            self.bullet_manager.shoot(self.position.x, self.position.y, 1)
+            self.bullet_manager.shoot(self.position.x, self.position.y + 30, 1)
+
+        if self.hp < 1:
+            change_gamestate(Gamestate.MENU)
 
         #render
         super().draw()
@@ -187,11 +190,17 @@ class Enemy(Entity):
 
         self.cycle = choice([1, -1])
 
+        self.shoot_speed = randint(500, 2000)
+
+        self.last_shot = 0
+
 
     def update(self, events):
         super().update(events)
 
         #super().check_bullets()
+
+        time = pygame.time.get_ticks()
 
         if self.position.x > SCREEN_WIDTH*0.8 and self.hp > 0:
             #spawn behaviour
@@ -213,6 +222,10 @@ class Enemy(Entity):
 
         if self.position.y < SCREEN_HEIGHT * 0.2:
             self.cycle = 1
+        
+        if time - self.last_shot > 500:
+            self.bullet_manager.shoot(self.position.x, self.position.y + 55, -1)
+            self.last_shot = time
 
         super().draw()
 
@@ -252,7 +265,7 @@ class Bullet(GameObject):
         super().draw()
         global enemies
         time = pygame.time.get_ticks()
-        self.velocity.x = (self.direction > 0) * 3 * deltaTime
+        self.velocity.x = self.direction * 3 * deltaTime
         if self.direction == 1:
             for enemy in enemies:
                 if check_collision(self.hitbox, enemy.hitbox) > 0 :
@@ -263,7 +276,14 @@ class Bullet(GameObject):
                     if self in bullets:
                         bullets.remove(self)
                         super().destroy()
+        elif self.direction == -1:
+            if check_collision(self.hitbox, objects[0].hitbox) != 0:
+                objects[0].take_damage()
+                self.last_time = time
 
+                if self in bullets:
+                    bullets.remove(self)
+                    super().destroy()
         elif self.position.x >= SCREEN_WIDTH:
             bullets.remove(self)
             super().destroy()
@@ -278,7 +298,7 @@ class BulletManager:
 
     def shoot(self, origin_x, origin_y, direction):
         if pygame.time.get_ticks() > self.last_time + 150:
-            bullets.append(Bullet(origin_x, origin_y + 30, direction, self.screen, self.sprite))
+            bullets.append(Bullet(origin_x, origin_y, direction, self.screen, self.sprite))
             objects.append(bullets[len(bullets)-1])
             self.last_time = pygame.time.get_ticks()
 
@@ -329,7 +349,7 @@ def start_game():
     global game_manager
     global objects
 
-    objects.append(Player(600, 300, 3, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
+    objects.append(Player(600, 300, 50, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
     objects.append(EnemyManager(3000))
 
     game_manager = GameManager(objects)
