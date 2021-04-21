@@ -20,6 +20,7 @@ bullets = []
 enemies = []
 gamestate = Gamestate.MENU
 deltaTime = 1
+muted = False
 
 #--------------------
 #classes, functions, gameobjects and methods
@@ -205,6 +206,9 @@ class Enemy(Entity):
             #die
             self.velocity = pygame.Vector2(0, 0)
             #Explosion
+            if not muted:
+                enemy_explode.play()
+            
             enemies.remove(self)
             super().destroy()
 
@@ -277,10 +281,14 @@ class BulletManager:
 
 
     def shoot(self, origin_x, origin_y, direction):
-        if pygame.time.get_ticks() > self.last_time + 150:
-            bullets.append(Bullet(origin_x, origin_y + 30, direction, self.screen, self.sprite))
-            objects.append(bullets[len(bullets)-1])
-            self.last_time = pygame.time.get_ticks()
+        if direction == 1:
+            if pygame.time.get_ticks() > self.last_time + 150:
+                if not muted:    
+                    player_shoot.play()
+                    
+                bullets.append(Bullet(origin_x, origin_y + 30, direction, self.screen, self.sprite))
+                objects.append(bullets[len(bullets)-1])
+                self.last_time = pygame.time.get_ticks()
 
 #--------------------
 #gameloops and assembly
@@ -311,6 +319,10 @@ explosion_3 = pygame.image.load('Sprites/Exp3.png').convert_alpha()
 explosion_4 = pygame.image.load('Sprites/Exp4.png').convert_alpha()
 explosion_5 = pygame.image.load('Sprites/Exp5.png').convert_alpha()
 
+#audio
+player_shoot = pygame.mixer.Sound('audio/player_shoot.wav')
+enemy_explode = pygame.mixer.Sound('audio/enemy_explosion.wav')
+# background_music = pygame.mixer.music("DA SONG")
 ## menu assets
 buttons.append(obj.Button(lambda:change_gamestate(Gamestate.RUNNING),(SCREEN_WIDTH//2)-80,250,screen, ' Start! ', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to start the game
 buttons.append(obj.Button(quit,(SCREEN_WIDTH//2)-80,400,screen, ' QUIT ', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to shut down the game
@@ -329,6 +341,8 @@ def start_game():
     global game_manager
     global objects
 
+    # background_music.play(-1,0.0)
+
     objects.append(Player(600, 300, 3, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
     objects.append(EnemyManager(3000))
 
@@ -341,8 +355,9 @@ def reset_game():
     global keys
     global bullets
     global enemies
-
+    
     objects = []
+    keys = set([])
     bullets = []
     enemies = []
 
@@ -358,6 +373,7 @@ while True:
     #fills the screen with black to clean it
     screen.fill((0, 0, 0))
     events = pygame.event.get()
+    
     if gamestate == Gamestate.MENU:
         menu_manager.update(events)
 
@@ -376,8 +392,7 @@ while True:
 
         if event.type == KEYDOWN:
             if event.key == K_m:
-                reset_game()
-                change_gamestate(Gamestate.MENU)
+                muted = not muted
 
             if event.key == K_r:
                 reset_game()
