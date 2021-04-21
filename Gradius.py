@@ -343,7 +343,6 @@ def reset_game():
     global enemies
 
     objects = []
-    keys = set([])
     bullets = []
     enemies = []
 
