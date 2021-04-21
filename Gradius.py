@@ -282,7 +282,7 @@ class BulletManager:
 
     def shoot(self, origin_x, origin_y, direction):
         if direction == 1:
-            if pygame.time.get_ticks() > self.last_time + 0:
+            if pygame.time.get_ticks() > self.last_time + 150:
                 if not muted:    
                     player_shoot.play()
                     
@@ -322,7 +322,7 @@ explosion_5 = pygame.image.load('Sprites/Exp5.png').convert_alpha()
 #audio
 player_shoot = pygame.mixer.Sound('audio/player_shoot.wav')
 enemy_explode = pygame.mixer.Sound('audio/enemy_explosion.wav')
-background_music = pygame.mixer.music('Concert_Of_The_Aerogami.wav')
+background_music = pygame.mixer.music.load('audio/Concert_Of_The_Aerogami.wav')
 ## menu assets
 buttons.append(obj.Button(lambda:change_gamestate(Gamestate.RUNNING),(SCREEN_WIDTH//2)-80,250,screen, ' Start! ', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to start the game
 buttons.append(obj.Button(quit,(SCREEN_WIDTH//2)-80,400,screen, ' QUIT ', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to shut down the game
