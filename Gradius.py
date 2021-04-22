@@ -156,8 +156,6 @@ class Player(Entity):
     def update(self, events):
         super().update(events)
 
-        print (self.hp)
-
         #movement
         if K_w in keys:
             self.velocity.y = -self.move_speed * deltaTime
@@ -382,10 +380,7 @@ def start_game():
 
 
     objects.append(Player(600, 300, 50, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
-    #objects.append(Player(600, 300, 50, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
-
-    objects.append(Player(600, 300, 3, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
-
+    
     objects.append(EnemyManager(3000))
 
     game_manager = GameManager(objects)
