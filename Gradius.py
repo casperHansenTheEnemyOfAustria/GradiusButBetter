@@ -21,6 +21,7 @@ enemies = []
 gamestate = Gamestate.MENU
 deltaTime = 1
 muted = False
+stop = False
 
 #--------------------
 #classes, functions, gameobjects and methods
@@ -68,6 +69,8 @@ class MenuManager:
 class GameManager:
 
     def __init__(self, objects):
+        global stop
+
         self._objects = objects
         self.last_time = pygame.time.get_ticks()
 
@@ -85,6 +88,8 @@ class GameManager:
 
         for object in self._objects:
             object.update(events)
+            if stop:
+                return True
             
         global deltaTime
         deltaTime = (pygame.time.get_ticks() - self.last_time)
@@ -177,6 +182,7 @@ class Player(Entity):
         if self.hp < 1:
             change_gamestate(Gamestate.MENU)
             stop_game()
+            return True
 
         #render
         super().draw()
@@ -371,7 +377,9 @@ def start_game():
     global keys
     global bullets
     global enemies
+    global stop
     
+    stop = False
     objects = []
     keys = set([])
     bullets = []
@@ -395,7 +403,9 @@ def stop_game():
     global bullets
     global enemies
     global game_manager
-    
+    global stop
+
+    stop = True
     objects = []
     keys = set([])
     bullets = []
