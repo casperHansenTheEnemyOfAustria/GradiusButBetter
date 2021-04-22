@@ -172,7 +172,7 @@ class Player(Entity):
 
         #shoot
         if K_SPACE in keys:
-            self.bullet_manager.shoot(self.position.x + 30, self.position.y , 1)
+            self.bullet_manager.shoot(self.position.x, self.position.y , 1)
 
         if self.hp < 1:
             change_gamestate(Gamestate.MENU)
@@ -308,10 +308,10 @@ class BulletManager:
                 if not muted:    
                     player_shoot.play()
                     
-                bullets.append(Bullet(origin_x, origin_y, direction, self.screen, self.sprite))
+                bullets.append(Bullet(origin_x, origin_y + 30, direction, self.screen, self.sprite))
                 objects.append(bullets[len(bullets)-1])
                 self.last_time = pygame.time.get_ticks()
-        if pygame.time.get_ticks() > self.last_time + 150:
+        elif pygame.time.get_ticks() > self.last_time + 150:
             bullets.append(Bullet(origin_x, origin_y, direction, self.screen, self.sprite))
             objects.append(bullets[len(bullets)-1])
             self.last_time = pygame.time.get_ticks()
