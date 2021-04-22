@@ -432,7 +432,11 @@ while True:
         if event.type == KEYDOWN:
             if event.key == K_m:
                 muted = not muted
-
+                if muted:
+                    pygame.mixer.music.stop()
+                else:
+                    pygame.mixer.music.play(-1,0.0)
+                    
             if event.key == K_r:
                 start_game()
 
