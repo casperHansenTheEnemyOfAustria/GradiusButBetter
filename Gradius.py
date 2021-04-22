@@ -174,7 +174,7 @@ class Player(Entity):
 
         #shoot
         if K_SPACE in keys:
-            self.bullet_manager.shoot(self.position.x, self.position.y + 30, 1)
+            self.bullet_manager.shoot(self.position.x + 30, self.position.y , 1)
 
         if self.hp < 1:
             change_gamestate(Gamestate.MENU)
@@ -380,8 +380,12 @@ def start_game():
 
     pygame.mixer.music.play(-1,0.0)
 
+
     objects.append(Player(600, 300, 50, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
     #objects.append(Player(600, 300, 50, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
+
+    objects.append(Player(600, 300, 3, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
+
     objects.append(EnemyManager(3000))
 
     game_manager = GameManager(objects)
