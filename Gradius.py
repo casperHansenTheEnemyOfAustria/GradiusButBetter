@@ -312,6 +312,8 @@ class BulletManager:
                 objects.append(bullets[len(bullets)-1])
                 self.last_time = pygame.time.get_ticks()
         elif pygame.time.get_ticks() > self.last_time + 150:
+            if not muted:
+                player_shoot.play()
             bullets.append(Bullet(origin_x, origin_y, direction, self.screen, self.sprite))
             objects.append(bullets[len(bullets)-1])
             self.last_time = pygame.time.get_ticks()
