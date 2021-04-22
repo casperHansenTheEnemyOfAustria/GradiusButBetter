@@ -74,6 +74,7 @@ class GameManager:
 
     #player control
     def update(self, events):
+    
         for event in events:
             if event.type == KEYDOWN:
                 keys.add(event.key)
@@ -155,6 +156,8 @@ class Player(Entity):
     def update(self, events):
         super().update(events)
 
+        print (self.hp)
+
         #movement
         if K_w in keys:
             self.velocity.y = -self.move_speed * deltaTime
@@ -175,6 +178,7 @@ class Player(Entity):
 
         if self.hp < 1:
             change_gamestate(Gamestate.MENU)
+            stop_game()
 
         #render
         super().draw()
@@ -306,7 +310,7 @@ class BulletManager:
                 if not muted:    
                     player_shoot.play()
                     
-                bullets.append(Bullet(origin_x, origin_y + 30, direction, self.screen, self.sprite))
+                bullets.append(Bullet(origin_x, origin_y, direction, self.screen, self.sprite))
                 objects.append(bullets[len(bullets)-1])
                 self.last_time = pygame.time.get_ticks()
         if pygame.time.get_ticks() > self.last_time + 150:
@@ -364,19 +368,6 @@ labels.append(obj.Text(200,50,screen,'The paper plane that could!', 'comicsansms
 def start_game():
     global game_manager
     global objects
-
-    pygame.mixer.music.play(-1,0.0)
-
-    objects.append(Player(600, 300, 3, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
-    objects.append(Player(600, 300, 50, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
-    objects.append(EnemyManager(3000))
-
-    game_manager = GameManager(objects)
-
-    pass
-
-def reset_game():
-    global objects
     global keys
     global bullets
     global enemies
@@ -387,7 +378,30 @@ def reset_game():
     enemies = []
     pygame.mixer.music.stop()
 
-    start_game()
+    pygame.mixer.music.play(-1,0.0)
+
+    objects.append(Player(600, 300, 50, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
+    #objects.append(Player(600, 300, 50, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
+    objects.append(EnemyManager(3000))
+
+    game_manager = GameManager(objects)
+
+    pass
+
+def stop_game():
+    global objects
+    global keys
+    global bullets
+    global enemies
+    global game_manager
+    
+    objects = []
+    keys = set([])
+    bullets = []
+    enemies = []
+    game_manager = None
+    pygame.mixer.music.stop()
+
     pass
 
 menu_manager = MenuManager(buttons, images, labels)
@@ -421,7 +435,7 @@ while True:
                 muted = not muted
 
             if event.key == K_r:
-                reset_game()
+                start_game()
 
 
     pygame.display.update()
