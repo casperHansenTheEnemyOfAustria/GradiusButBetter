@@ -85,10 +85,10 @@ def update_score():
     global scores
     global player_score
 
-    for entry in scores:
-        if player_score > int(entry['score']):
-            entry['name'] = 'BOB'
-            entry['score'] = player_score
+    for i,entry in enumerate(scores):
+        if player_score >= int(entry['score']):
+            scores.insert(i,{'name': 'BOB', 'score': player_score})
+            scores.pop(len(scores)-1)
             return
 
 
@@ -102,7 +102,7 @@ def load_scores():
         #creates a save file in the case of no save file
         with open('save.pickle', 'wb') as file:
 
-            initial_scores = [{'name': 'ABC', 'score': '000'} for x in range(10)]
+            initial_scores = [{'name': 'ABC', 'score': '0'} for x in range(10)]
 
             pickle.dump(initial_scores, file)
             scores = initial_scores
