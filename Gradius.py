@@ -11,7 +11,7 @@ SCREEN_HEIGHT = 600
 BASE_ATTACK = 5
 
 #Lists for global management
-
+scores = []
 objects = []
 keys = set([])
 bullets = []
@@ -51,6 +51,7 @@ def start_game():
 
     pass
 
+
 def stop_game():
     global objects
     global keys
@@ -69,24 +70,42 @@ def stop_game():
 
     pass
 
-def load_scores(da_screen, positions):
-    scores = []
+
+def render_scores(da_screen, scores, positions):
+    score_render = []
+
+    for index in range(10):
+        score_render.append(obj.Text(positions[index][0],positions[index][1],da_screen,f'{index}. {scores[index]["name"]} - {scores[index]["score"]}', 'comicsansms', 40))
+
+    return score_render
+
+
+def load_scores():
 
     try:
-        pickle.load(open('save.pickle', 'rb'))
+        #checks if the save file is here
+        with open('save.pickle', 'rb') as save:
+            scores = pickle.load(save)
 
     except:
+        #creates a save file in the case of no save file
         with open('save.pickle', 'wb') as file:
-            pickle.dump(['ABC - 000' for x in range(10)], file)
 
-    with open('save.pickle', 'rb') as save:
-        data = pickle.load(save)
-        #takes the score text and puts it into the text object with an index
-
-        for index in range(10):
-            scores.append(obj.Text(positions[index][0],positions[index][1],da_screen,f'{index+1}. {data[0]}', 'comicsansms', 40))
+            initial_scores = [{'name': 'ABC', 'score': '000'} for x in range(10)]
+            
+            pickle.dump(initial_scores, file)
+            scores = initial_scores
 
     return scores
+
+
+def save_scores():
+    global scores
+
+    with open('save.pickle', 'wb') as file:
+        #saves whatever is in the scores into the file
+        pickle.dump(scores, file)
+
 
 def check_collision(hitbox1, hitbox2):
     return hitbox1.colliderect(hitbox2)
@@ -99,9 +118,9 @@ def change_gamestate(new_state):
 
 
 def quit():
+    save_scores()
     pygame.quit
     sys.exit()
-    #save
 
 
 
@@ -442,25 +461,25 @@ menu_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.RUNNING),(SCREE
 menu_buttons.append(obj.Button(quit,(SCREEN_WIDTH//2)-80,470,screen, ' QUIT ', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to shut down the game
 menu_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.SCOREBOARD),(SCREEN_WIDTH//2)-100,360,screen, ' Score ', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to shut down the game
 menu_images = []
-menu_images.append(obj.Image(100,100,screen,10,player_sprite)) # player sprite for the menu
-menu_images.append(obj.Image(400,160,screen,10,bullet_sprite)) # 1st bullet sprite for the menu
-menu_images.append(obj.Image(600,160,screen,10,bullet_sprite)) # 2nd bullet sprite for the menu
-menu_images.append(obj.Image(800,160,screen,10,bullet_sprite)) # 3rd bullet sprite for the menu
-menu_images.append(obj.Image(1000,160,screen,10,bullet_sprite)) # 4th bullet sprite for the menu
+menu_images.append(obj.Image(100, 100, screen, 10, player_sprite)) # player sprite for the menu
+menu_images.append(obj.Image(400, 160, screen, 10, bullet_sprite)) # 1st bullet sprite for the menu
+menu_images.append(obj.Image(600, 160, screen, 10, bullet_sprite)) # 2nd bullet sprite for the menu
+menu_images.append(obj.Image(800, 160, screen, 10, bullet_sprite)) # 3rd bullet sprite for the menu
+menu_images.append(obj.Image(1000, 160, screen, 10, bullet_sprite)) # 4th bullet sprite for the menu
 menu_labels = []
 menu_labels.append(obj.Text(200,50,screen,'The paper plane that could!', 'comicsansms',60,pygame.Color(255,255,255), pygame.Color(0,0,0)))
 
 ##scoreboard assets
 scoreboard_buttons = []
-scoreboard_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.MENU), 300, 500, screen, ' Menu ', 'impact', 80, pygame.Color(255,255,255),pygame.Color(120,120,120)))
-scoreboard_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.RUNNING), 600, 500, screen, ' Restart ', 'impact', 80, pygame.Color(255,255,255),pygame.Color(120,120,120)))
+scoreboard_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.MENU), 500, 500, screen, ' Menu ', 'impact', 80, pygame.Color(255,255,255),pygame.Color(120,120,120)))
+# scoreboard_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.RUNNING), 600, 500, screen, ' Restart ', 'impact', 80, pygame.Color(255,255,255),pygame.Color(120,120,120)))
 scoreboard_images = []
-scoreboard_label_positions = [(300,100), (300,150), (300,200), (300,250), (300,300), (650,100), (650,150), (650,200), (650,250), (650,300)]
-scoreboard_labels = load_scores(screen,scoreboard_label_positions)
 
+scoreboard_label_positions = [(300,100), (300,150), (300,200), (300,250), (300,300), (650,100), (650,150), (650,200), (650,250), (650,300)]
+scores = load_scores()
+scoreboard_labels = render_scores(screen, scores, scoreboard_label_positions)
 
 #game managers
-
 
 main_menu = MenuManager(menu_buttons, menu_images, menu_labels)
 scoreboard_menu = MenuManager(scoreboard_buttons, scoreboard_images, scoreboard_labels)
