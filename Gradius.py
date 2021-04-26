@@ -333,7 +333,7 @@ class BulletManager:
         def update(self, events):
             self.velocity.x = -5
     
-    class EnviromentManager():
+    class EnvironmentManager():
         def __init__(self, maxHeight, minHeight):
             self.maxHeight = maxHeight
             self.minHeight = minHeight
