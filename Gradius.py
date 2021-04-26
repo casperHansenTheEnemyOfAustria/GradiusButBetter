@@ -391,7 +391,8 @@ def start_game():
     enemies = []
     pygame.mixer.music.stop()
 
-    pygame.mixer.music.play(-1,0.0)
+    if not muted:
+        pygame.mixer.music.play(-1,0.0)
 
 
     objects.append(Player(600, 300, 50, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
