@@ -101,7 +101,7 @@ class GameObject:
     def __init__(self, position_x, position_y, screen, sprite):
         self.position = pygame.Vector2(position_x, position_y)
         self.velocity = pygame.Vector2(0, 0)
-        self.state = 'alive'
+        #self.state = 'alive'
         self.sprite = sprite
         self.screen = screen
 
@@ -320,9 +320,14 @@ class BulletManager:
         elif pygame.time.get_ticks() > self.last_time + 150:
             if not muted:
                 player_shoot.play()
-            bullets.append(Bullet(origin_x, origin_y, direction, self.screen, self.sprite))
-            objects.append(bullets[len(bullets)-1])
+            new_bullet = Bullet(origin_x, origin_y, direction, self.screen, self.sprite)
+            bullets.append(new_bullet)
+            objects.append(new_bullet)
             self.last_time = pygame.time.get_ticks()
+    
+    class EnviromentManager():
+        def __init__():
+            pass
 
 #--------------------
 #gameloops and assembly
