@@ -4,3 +4,4 @@ class Gamestate(Enum):
     MENU = 1
     RUNNING = 2
     GAME_OVER = 3
+    SCOREBOARD = 4
