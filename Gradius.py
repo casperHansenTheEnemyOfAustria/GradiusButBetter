@@ -294,7 +294,7 @@ class Player(Entity):
 
 class Enemy(Entity):
 
-    def __init__(self, position_x, position_y, maxHP, move_speed, screen, sprite, bullet_sprite, index):
+    def __init__(self, position_x, position_y, maxHP, move_speed, screen, sprite, bullet_sprite, points, index):
 
         super().__init__(position_x, position_y, maxHP, screen, sprite)
 
@@ -305,6 +305,8 @@ class Enemy(Entity):
         self.cycle = choice([1, -1])
 
         self.shoot_speed = randint(500, 2000)
+
+        self.points = points
 
         self.last_shot = 0
 
@@ -331,7 +333,7 @@ class Enemy(Entity):
             if not muted:
                 enemy_explode.play()
             global player_score
-            player_score += 5
+            player_score += self.points
             enemies.remove(self)
             
             super().destroy()
@@ -365,8 +367,9 @@ class EnemyManager:
         global enemies
         time = pygame.time.get_ticks()
         if time - self.last_time > self.start:
-            enemies.append(Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(15, 150), randint(1, 4) / 10, screen, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), len(enemies)))
-            objects.append(enemies[len(enemies)-1])
+            new_enemy = Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(15, 150), randint(1, 4) / 10, screen, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), 5, len(enemies))
+            enemies.append(new_enemy)
+            objects.append(new_enemy)
             self.last_time = time
 
 
