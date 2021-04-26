@@ -12,6 +12,7 @@ BASE_ATTACK = 5
 
 #Lists for global management
 scores = []
+player_score = 0
 objects = []
 keys = set([])
 bullets = []
@@ -41,7 +42,6 @@ def start_game():
 
     if not muted:
         pygame.mixer.music.play(-1,0.0)
-
 
     objects.append(Player(600, 300, 50, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
     
@@ -80,6 +80,16 @@ def render_scores(da_screen, scores, positions):
     return score_render
 
 
+def update_score():
+    global scores
+    global player_score
+
+    for entry in scores:
+        if player_score > int(entry['score']):
+            entry['name'] = 'BOB'
+            entry['score'] = player_score
+            return
+
 def load_scores():
 
     try:
@@ -92,7 +102,7 @@ def load_scores():
         with open('save.pickle', 'wb') as file:
 
             initial_scores = [{'name': 'ABC', 'score': '000'} for x in range(10)]
-            
+
             pickle.dump(initial_scores, file)
             scores = initial_scores
 
@@ -123,12 +133,11 @@ def quit():
     sys.exit()
 
 
-
 class MenuManager:
     def __init__(self, buttons, images, labels):
         self._buttons = buttons
         self._images = images
-        self._labels = labels
+        self.labels = labels
 
     #player control
     def update(self, events):
@@ -145,7 +154,7 @@ class MenuManager:
         for image in self._images:
             image.render()
             
-        for label in self._labels:
+        for label in self.labels:
             if gamestate == Gamestate.SCOREBOARD:
                 #add position to the text
                 label.render()
@@ -274,7 +283,8 @@ class Player(Entity):
             self.bullet_manager.shoot(self.position.x, self.position.y , 1)
 
         if self.hp < 1:
-            change_gamestate(Gamestate.MENU)
+            change_gamestate(Gamestate.SCOREBOARD)
+            update_score()
             stop_game()
             return True
 
@@ -319,8 +329,10 @@ class Enemy(Entity):
             #Explosion
             if not muted:
                 enemy_explode.play()
-            
+            global player_score
+            player_score += 5
             enemies.remove(self)
+            
             super().destroy()
 
         if self.position.y > SCREEN_HEIGHT * 0.8:
@@ -496,6 +508,9 @@ while True:
         main_menu.update(events)
 
     elif gamestate == Gamestate.SCOREBOARD:
+
+        scoreboard_menu.labels = render_scores(screen, scores, scoreboard_label_positions)
+
         scoreboard_menu.update(events)
     
     elif gamestate == Gamestate.RUNNING:
