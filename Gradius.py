@@ -26,6 +26,7 @@ stop = False
 #classes, functions, gameobjects and methods
 
 def start_game():
+    global player_score
     global game_manager
     global objects
     global keys
@@ -33,6 +34,7 @@ def start_game():
     global enemies
     global stop
     
+    player_score = 0
     stop = False
     objects = []
     keys = set([])
@@ -73,7 +75,6 @@ def stop_game():
 
 def render_scores(da_screen, scores, positions):
     score_render = []
-
     for index in range(10):
         score_render.append(obj.Text(positions[index][0],positions[index][1],da_screen,f'{index}. {scores[index]["name"]} - {scores[index]["score"]}', 'comicsansms', 40))
 
@@ -90,8 +91,8 @@ def update_score():
             entry['score'] = player_score
             return
 
-def load_scores():
 
+def load_scores():
     try:
         #checks if the save file is here
         with open('save.pickle', 'rb') as save:
