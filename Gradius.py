@@ -244,8 +244,8 @@ class Entity(GameObject):
         self.last_time = 0
 
 
-    def take_damage(self):
-        self.hp = max(0, self.hp - (randint(1, 10) + BASE_ATTACK))
+    def take_damage(self, damage):
+        self.hp = max(0, self.hp - (randint(1, 10) + BASE_ATTACK) * damage)
 
 
     def heal(self):
@@ -287,10 +287,11 @@ class Player(Entity):
         #shoot
         if K_SPACE in keys:
             self.bullet_manager.shoot(self.position.x, self.position.y , 1)
+
         for enemy in enemies:
             if check_collision(self.hitbox, enemy.hitbox) > 0 :
                 if time - self.last_time > 500:
-                    self.take_damage()
+                    self.take_damage(1)
                     self.last_time = time
 
         if self.hp < 1:
@@ -354,8 +355,8 @@ class Enemy(Entity):
         if self.position.y < SCREEN_HEIGHT * 0.2:
             self.cycle = 1
         
-        if time - self.last_shot > 500:
-            self.bullet_manager.shoot(self.position.x, self.position.y + 55, -1)
+        if time - self.last_shot > 800:
+            self.bullet_manager.shoot(self.position.x, self.position.y + 55, -0.5)
             self.last_shot = time
 
         super().draw()
@@ -385,9 +386,10 @@ class EnemyManager:
 
 class Bullet(GameObject):
 
-    def __init__(self, position_x, position_y, direction, screen, sprite): #Add Damage Later
+    def __init__(self, position_x, position_y, direction, screen, sprite, damage): #Add Damage Later
         super().__init__(position_x, position_y, screen, sprite)
         self.direction = direction
+        self.damage = damage
 
         self.last_time = 0
 
@@ -402,15 +404,15 @@ class Bullet(GameObject):
             for enemy in enemies:
                 if check_collision(self.hitbox, enemy.hitbox) > 0 :
                     if time - self.last_time > 500:
-                        enemy.take_damage()
+                        enemy.take_damage(self.damage)
                         self.last_time = time
 
                     if self in bullets:
                         bullets.remove(self)
                         super().destroy()
-        elif self.direction == -1:
+        elif self.direction < 0:
             if check_collision(self.hitbox, objects[0].hitbox) != 0:
-                objects[0].take_damage()
+                objects[0].take_damage(1)
                 self.last_time = time
 
                 if self in bullets:
@@ -429,21 +431,24 @@ class BulletManager:
 
 
     def shoot(self, origin_x, origin_y, direction):
+        time = pygame.time.get_ticks()
         if direction == 1:
-            if pygame.time.get_ticks() > self.last_time + 150:
+            if time > self.last_time + 150:
                 if not muted:    
                     player_shoot.play()
                     
-                bullets.append(Bullet(origin_x, origin_y + 30, direction, self.screen, self.sprite))
-                objects.append(bullets[len(bullets)-1])
-                self.last_time = pygame.time.get_ticks()
-        elif pygame.time.get_ticks() > self.last_time + 150:
+                temp = Bullet(origin_x, origin_y + 30, direction, self.screen, self.sprite, (time - self.last_time) / 100)
+
+                bullets.append(temp)
+                objects.append(temp)
+                self.last_time = time
+        elif time > self.last_time + 150:
             if not muted:
                 player_shoot.play()
-            new_bullet = Bullet(origin_x, origin_y, direction, self.screen, self.sprite)
+            new_bullet = Bullet(origin_x, origin_y, direction, self.screen, self.sprite, 1)
             bullets.append(new_bullet)
             objects.append(new_bullet)
-            self.last_time = pygame.time.get_ticks()
+            self.last_time = time
     
 class HillPart(GameObject):
     def __init__(self, height, width, sprite):
