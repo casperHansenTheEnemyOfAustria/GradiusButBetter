@@ -519,12 +519,10 @@ menu_buttons.append(obj.Button(quit,(SCREEN_WIDTH//2)-80,470,screen, ' QUIT ', '
 menu_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.SCOREBOARD),(SCREEN_WIDTH//2)-100,360,screen, ' Score ', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to shut down the game
 menu_images = []
 menu_images.append(obj.Image(100, 100, screen, 10, player_sprite)) # player sprite for the menu
-menu_images.append(obj.Image(400, 160, screen, 10, bullet_sprite)) # 1st bullet sprite for the menu
-menu_images.append(obj.Image(600, 160, screen, 10, bullet_sprite)) # 2nd bullet sprite for the menu
-menu_images.append(obj.Image(800, 160, screen, 10, bullet_sprite)) # 3rd bullet sprite for the menu
-menu_images.append(obj.Image(1000, 160, screen, 10, bullet_sprite)) # 4th bullet sprite for the menu
+for x in range(4):
+    menu_images.append(obj.Image(400+200*x, 160, screen, 10, bullet_sprite)) # 1st bullet sprite for the menu
 menu_labels = []
-menu_labels.append(obj.Text(200,50,screen,'The paper plane that could!', 'comicsansms',60,pygame.Color(255,255,255), pygame.Color(0,0,0)))
+menu_labels.append(obj.Text(200,50,screen,'The paper plane that could!', 'comicsansms',60,pygame.Color(255,255,255)))
 
 ##scoreboard assets
 scoreboard_buttons = []
@@ -536,8 +534,9 @@ scoreboard_label_positions = [(300,100), (300,150), (300,200), (300,250), (300,3
 scores = load_scores()
 scoreboard_labels = render_scores(screen, scores, scoreboard_label_positions)
 
-#game managers
 
+
+#managers
 main_menu = MenuManager(menu_buttons, menu_images, menu_labels)
 scoreboard_menu = MenuManager(scoreboard_buttons, scoreboard_images, scoreboard_labels)
 game_manager = None
@@ -561,6 +560,8 @@ while True:
     elif gamestate == Gamestate.RUNNING:
         if game_manager:
             game_manager.update(events)
+            obj.Text(20, 20, screen, f'Score:{player_score}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
+
         else:
             start_game()
 
