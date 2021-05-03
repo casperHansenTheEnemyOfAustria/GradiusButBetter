@@ -51,6 +51,8 @@ def start_game():
 
     game_manager = GameManager(objects)
 
+    #objects.append(EnvironmentManager(60, 30))
+
     pass
 
 
@@ -443,34 +445,35 @@ class BulletManager:
             objects.append(new_bullet)
             self.last_time = pygame.time.get_ticks()
     
-    class HillPart(GameObject):
-        def __init__(self, height, width, sprite):
-            self.sprite = pygame.transform.scale(sprite, (width, height))
-            super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, screen, self.sprite)
-        
-        def update(self, events):
-            self.velocity.x = -5
+class HillPart(GameObject):
+    def __init__(self, height, width, sprite):
+        self.sprite = pygame.transform.scale(sprite, (width, height))
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, screen, self.sprite)
     
-    class EnvironmentManager():
-        def __init__(self, maxHeight, minHeight):
-            self.maxHeight = maxHeight
-            self.minHeight = minHeight
-            self.hill_height = randint(self.minHeight, self.maxHeight)
-            self.current_hill = 1
-            self.last_time = 0
+    def update(self, events):
+        self.velocity.x = -5
 
-            self.part_height = 5
-            self.part_width = 10
-        def update(self, events):
-            time = pygame.time.get_ticks()
-            if self.current_hill < self.hill_height * 2 - 1:
-                if time - self.last_time > 150:
-                    objects.append(HillPart(self.part_height * self.current_hill, self.part_width, bullet_sprite))
-                    self.current_hill += 1
-            else:
-                self.current_hill = 1
-                self.hill_height = randint(self.minHeight, self.maxHeight)
-            self.last_time = pygame.time.get_ticks()
+class EnvironmentManager():
+    def __init__(self, maxHeight, minHeight):
+        self.maxHeight = maxHeight
+        self.minHeight = minHeight
+        self.hill_height = randint(self.minHeight, self.maxHeight)
+        self.current_hill = 1
+        self.last_time = 0
+
+        self.part_height = 5
+        self.part_width = 10
+
+    def update(self, events):
+        time = pygame.time.get_ticks()
+        if self.current_hill < self.hill_height * 2 - 1:
+            if time - self.last_time > 150:
+                objects.append(HillPart(self.part_height * self.current_hill, self.part_width, bullet_sprite))
+                self.current_hill += 1
+        else:
+            self.current_hill = 1
+            self.hill_height = randint(self.minHeight, self.maxHeight)
+        self.last_time = pygame.time.get_ticks()
 
 #--------------------
 #gameloops and assembly
