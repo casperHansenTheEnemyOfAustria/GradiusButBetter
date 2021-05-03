@@ -205,7 +205,6 @@ class GameObject:
     def __init__(self, position_x, position_y, screen, sprite):
         self.position = pygame.Vector2(position_x, position_y)
         self.velocity = pygame.Vector2(0, 0)
-        #self.state = 'alive'
         self.sprite = sprite
         self.screen = screen
 
@@ -261,9 +260,13 @@ class Player(Entity):
 
         self.move_speed = move_speed
 
+        self.last_time = 0
+
 
     def update(self, events):
         super().update(events)
+
+        time = pygame.time.get_ticks()
 
         #movement
         if K_w in keys:
@@ -282,6 +285,11 @@ class Player(Entity):
         #shoot
         if K_SPACE in keys:
             self.bullet_manager.shoot(self.position.x, self.position.y , 1)
+        for enemy in enemies:
+            if check_collision(self.hitbox, enemy.hitbox) > 0 :
+                if time - self.last_time > 500:
+                    self.take_damage()
+                    self.last_time = time
 
         if self.hp < 1:
             change_gamestate(Gamestate.SCOREBOARD)
@@ -443,7 +451,7 @@ class BulletManager:
         def update(self, events):
             self.velocity.x = -5
     
-    class EnviromentManager():
+    class EnvironmentManager():
         def __init__(self, maxHeight, minHeight):
             self.maxHeight = maxHeight
             self.minHeight = minHeight
