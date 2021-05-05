@@ -411,7 +411,7 @@ class EnemyManager:
         global enemies
         time = pygame.time.get_ticks()
         if time - self.last_time > self.start:
-            new_enemy = Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(50, 200), randint(1, 4) / 10, screen, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), 5, len(enemies))
+            new_enemy = Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(50, 400), randint(1, 4) / 10, screen, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), 5, len(enemies))
             enemies.append(new_enemy)
             objects.append(new_enemy)
             self.last_time = time
