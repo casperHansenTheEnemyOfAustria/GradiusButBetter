@@ -359,12 +359,12 @@ class Enemy(Entity):
             #die
             self.velocity = pygame.Vector2(0, 0)
             #Explosion
-            if not muted:
-                enemy_explode.play()
             global player_score
             player_score += self.points
             if self.death_time == None:
                 self.death_time = self.time
+                if not muted:
+                    enemy_explode.play()
                 enemies.remove(self)
             self.die()
 
