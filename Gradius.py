@@ -218,6 +218,8 @@ class GameObject:
         hitbox.y = self.position.y
         return hitbox
 
+    def set_sprite(self, new_sprite):
+        self.sprite = new_sprite
 
     # Flyttar objektet
     def update(self, events):
@@ -333,13 +335,17 @@ class Enemy(Entity):
 
         self.last_shot = 0
 
+        self.death_time = None
+
+        self. time = 0
+
 
     def update(self, events):
         super().update(events)
 
         #super().check_bullets()
 
-        time = pygame.time.get_ticks()
+        self.time = pygame.time.get_ticks()
 
         if self.position.x > SCREEN_WIDTH*0.8 and self.hp > 0:
             #spawn behaviour
@@ -357,9 +363,10 @@ class Enemy(Entity):
                 enemy_explode.play()
             global player_score
             player_score += self.points
-            enemies.remove(self)
-            
-            super().destroy()
+            if self.death_time == None:
+                self.death_time = self.time
+                enemies.remove(self)
+            self.die()
 
         if self.position.y > SCREEN_HEIGHT * 0.8:
             self.cycle = -1
@@ -367,11 +374,25 @@ class Enemy(Entity):
         if self.position.y < SCREEN_HEIGHT * 0.2:
             self.cycle = 1
         
-        if time - self.last_shot > 800:
+        if self.time - self.last_shot > 800:
             self.bullet_manager.shoot(self.position.x, self.position.y + 55, -0.5)
-            self.last_shot = time
+            self.last_shot =self.time
 
         super().draw()
+
+    def die(self):
+        if self.time - self.death_time < 100:
+            self.sprite = explosion_1
+        elif self.time - self.death_time < 200:
+            self.sprite = explosion_2
+        elif self.time - self.death_time < 300:
+            self.sprite = explosion_3
+        elif self.time - self.death_time < 400:
+            self.sprite = explosion_4
+        elif self.time - self.death_time < 500:
+            self.sprite = explosion_5
+        elif self.time - self.death_time < 505:
+            super().destroy()
 
 
 class EnemyManager:
@@ -532,11 +553,11 @@ enemy_sprite = pygame.image.load('Sprites/Enemy.png').convert_alpha()
 #objects.append(Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * 0.3, 50, 0.1, screen, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5))))
 
 #explosion stages
-explosion_1 = pygame.image.load('Sprites/Exp1.png').convert_alpha()
-explosion_2 = pygame.image.load('Sprites/Exp2.png').convert_alpha()
-explosion_3 = pygame.image.load('Sprites/Exp3.png').convert_alpha()
-explosion_4 = pygame.image.load('Sprites/Exp4.png').convert_alpha()
-explosion_5 = pygame.image.load('Sprites/Exp5.png').convert_alpha()
+explosion_1 = pygame.transform.scale(pygame.image.load('Sprites/Exp1.png').convert_alpha(), (4 * 5, 3 * 5))
+explosion_2 = pygame.transform.scale(pygame.image.load('Sprites/Exp2.png').convert_alpha(), (6 * 5, 5 * 5))
+explosion_3 = pygame.transform.scale(pygame.image.load('Sprites/Exp3.png').convert_alpha(), (8 * 5, 7 * 5))
+explosion_4 = pygame.transform.scale(pygame.image.load('Sprites/Exp4.png').convert_alpha(), (20 * 5, 20 * 5))
+explosion_5 = pygame.transform.scale(pygame.image.load('Sprites/Exp5.png').convert_alpha(), (20 * 5, 20 * 5))
 
 #audio
 player_shoot = pygame.mixer.Sound('audio/player_shoot.wav')
