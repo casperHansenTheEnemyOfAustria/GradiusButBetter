@@ -1,6 +1,5 @@
 import pygame
 pygame.font.init()
-#colors
 
 class __Object():
 

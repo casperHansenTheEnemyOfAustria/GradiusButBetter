@@ -21,6 +21,7 @@ gamestate = Gamestate.MENU
 deltaTime = 1
 muted = False
 stop = False
+name = ''
 
 #--------------------
 #classes, functions, gameobjects and methods
@@ -78,7 +79,7 @@ def stop_game():
 def render_scores(da_screen, scores, positions):
     score_render = []
     for index in range(10):
-        score_render.append(obj.Text(positions[index][0],positions[index][1],da_screen,f'{index}. {scores[index]["name"]} - {scores[index]["score"]}', 'comicsansms', 40))
+        score_render.append(obj.Text(positions[index][0], positions[index][1], da_screen, f'{index}. {scores[index]["name"]} - {scores[index]["score"]}', 'comicsansms', 40))
 
     return score_render
 
@@ -86,13 +87,15 @@ def render_scores(da_screen, scores, positions):
 def update_score():
     global scores
     global player_score
-
+    global name
+    
     for i,entry in enumerate(scores):
         if player_score >= int(entry['score']):
-            scores.insert(i,{'name': 'BOB', 'score': player_score})
+            scores.insert(i,{'name': name, 'score': player_score})
             scores.pop(len(scores)-1)
+            name = ''
             return
-
+        
 
 def load_scores():
     try:
@@ -307,10 +310,9 @@ class Player(Entity):
                 if time - self.last_time > 500:
                     self.take_damage(1)
                     self.last_time = time
-
+        #player die
         if self.hp < 1:
-            change_gamestate(Gamestate.SCOREBOARD)
-            update_score()
+            change_gamestate(Gamestate.GAME_OVER)            
             stop_game()
             return True
 
@@ -601,6 +603,31 @@ while True:
 
     if gamestate == Gamestate.MENU:
         main_menu.update(events)
+
+    elif gamestate == Gamestate.GAME_OVER:
+        for event in events:
+            
+            if event.type == KEYDOWN:
+                
+                #accept the name and go to scoreboard
+                if event.key == pygame.K_RETURN:
+                    gamestate = Gamestate.SCOREBOARD
+                    update_score()
+                    
+                #backspace function
+                elif event.key == pygame.K_BACKSPACE:
+                    name = name[:-1]
+                    
+                #add key to name
+                elif len(name) < 6:
+                    name += event.unicode
+                
+        #display name on the screen
+        
+        obj.Text(400, 80, screen, f'FINAL SCORE:{player_score}', 'impact', 80, pygame.Color(255,255,255)).render()
+        
+        obj.Text(500,300,screen,f'Name:{name}', 'impact', 50, pygame.Color(255,255,255)).render()
+        pass
 
     elif gamestate == Gamestate.SCOREBOARD:
 
