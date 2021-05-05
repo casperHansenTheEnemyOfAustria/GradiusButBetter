@@ -605,23 +605,6 @@ while True:
         main_menu.update(events)
 
     elif gamestate == Gamestate.GAME_OVER:
-        for event in events:
-            
-            if event.type == KEYDOWN:
-                
-                #accept the name and go to scoreboard
-                if event.key == pygame.K_RETURN:
-                    gamestate = Gamestate.SCOREBOARD
-                    update_score()
-                    
-                #backspace function
-                elif event.key == pygame.K_BACKSPACE:
-                    name = name[:-1]
-                    
-                #add key to name
-                elif len(name) < 6:
-                    name += event.unicode
-                
         #display name on the screen
         
         obj.Text(400, 80, screen, f'FINAL SCORE:{player_score}', 'impact', 80, pygame.Color(255,255,255)).render()
@@ -652,12 +635,28 @@ while True:
             quit()
 
         if event.type == KEYDOWN:
-            if event.key == K_m:
+            
+            if gamestate == Gamestate.GAME_OVER:
+                 #accept the name and go to scoreboard
+                if event.key == pygame.K_RETURN:
+                    gamestate = Gamestate.SCOREBOARD
+                    update_score()
+                    
+                #backspace function
+                elif event.key == pygame.K_BACKSPACE:
+                    name = name[:-1]
+                    
+                #add key to name
+                elif len(name) < 6 and len(name) > 2:
+                    name += event.unicode
+            
+            elif event.key == K_m:
                 muted = not muted
                 if muted:
                     pygame.mixer.music.stop()
                 else:
                     pygame.mixer.music.play(-1,0.0)
                     
+                                
 
     pygame.display.update()
