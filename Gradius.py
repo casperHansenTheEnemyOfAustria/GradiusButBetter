@@ -45,7 +45,7 @@ def start_game():
     if not muted:
         pygame.mixer.music.play(-1,0.0)
 
-    objects.append(Player(600, 300, 50, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), pygame.transform.scale(bullet_sprite, (10, 5))))
+    objects.append(Player(600, 300, 50, 0.6, screen, pygame.transform.scale(player_sprite, (70, 35)), bullet_sprite))
     
     objects.append(EnemyManager(3000))
 
@@ -180,7 +180,6 @@ class GameManager:
     def update(self, events):
     
         for event in events:
-            
             if event.type == KEYDOWN and event.key == K_r:
                 start_game()
 
@@ -190,6 +189,7 @@ class GameManager:
             if event.type == KEYUP and event.key in keys:
                 keys.remove(event.key)
                 continue
+
             
 
         for object in self._objects:
@@ -264,6 +264,8 @@ class Player(Entity):
 
         self.last_time = 0
 
+        self. start_shooting_time = None
+
 
     def update(self, events):
         super().update(events)
@@ -288,8 +290,18 @@ class Player(Entity):
         if K_SPACE in keys:
             self.bullet_manager.shoot(self.position.x, self.position.y , 1)
 
+        for event in events:
+            if event.type == KEYDOWN and event.key == K_SPACE:
+                self.start_shooting_time = time
+            if event.type == KEYUP:
+                if event.key == K_SPACE:
+                    if time - self.start_shooting_time > 1000:
+                        self.bullet_manager.big_shoot(self.position.x, self.position.y)
+                    self.start_shooting_time = None
+
+
         for enemy in enemies:
-            if check_collision(self.hitbox, enemy.hitbox) > 0 :
+            if check_collision(self.hitbox, enemy.hitbox) > 0:
                 if time - self.last_time > 500:
                     self.take_damage(1)
                     self.last_time = time
@@ -378,7 +390,7 @@ class EnemyManager:
         global enemies
         time = pygame.time.get_ticks()
         if time - self.last_time > self.start:
-            new_enemy = Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(15, 150), randint(1, 4) / 10, screen, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), 5, len(enemies))
+            new_enemy = Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(50, 200), randint(1, 4) / 10, screen, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), 5, len(enemies))
             enemies.append(new_enemy)
             objects.append(new_enemy)
             self.last_time = time
@@ -423,7 +435,7 @@ class Bullet(GameObject):
             super().destroy()
 
 class BulletManager:
-
+    
     def __init__(self, screen, sprite):
         self.last_time = pygame.time.get_ticks()
         self.sprite = sprite
@@ -436,8 +448,14 @@ class BulletManager:
             if time > self.last_time + 150:
                 if not muted:    
                     player_shoot.play()
+
+                sprite = pygame.transform.scale(self.sprite, (10, 5))
+                damage = 1
+                if direction == 1 and time - self.last_time > 155:
+                    sprite = pygame.transform.scale(self.sprite, (20, 10))
+                    damage = 3
                     
-                temp = Bullet(origin_x, origin_y + 30, direction, self.screen, self.sprite, (time - self.last_time) / 100)
+                temp = Bullet(origin_x, origin_y + 30, direction, self.screen, sprite, damage)
 
                 bullets.append(temp)
                 objects.append(temp)
@@ -449,6 +467,18 @@ class BulletManager:
             bullets.append(new_bullet)
             objects.append(new_bullet)
             self.last_time = time
+
+    def big_shoot(self, origin_x, origin_y):
+        if not muted:    
+            player_shoot.play()
+
+        sprite = pygame.transform.scale(self.sprite, (50, 25))
+        damage = 5
+            
+        temp = Bullet(origin_x, origin_y + 30, 1, self.screen, sprite, damage)
+
+        bullets.append(temp)
+        objects.append(temp)
     
 class HillPart(GameObject):
     def __init__(self, height, width, sprite):
