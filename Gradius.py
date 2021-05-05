@@ -304,6 +304,11 @@ class Player(Entity):
                         self.bullet_manager.big_shoot(self.position.x, self.position.y)
                     self.start_shooting_time = None
 
+        if self.start_shooting_time != None and time - self.start_shooting_time > 1000:
+            self.sprite = pygame.transform.scale(red_player_sprite, (70, 35))
+        else:
+            self.sprite = pygame.transform.scale(player_sprite, (70, 35))
+
 
         for enemy in enemies:
             if check_collision(self.hitbox, enemy.hitbox) > 0:
@@ -549,6 +554,7 @@ bullet_sprite = pygame.image.load('Sprites/Bullet.png').convert_alpha()
 
 #player sprite and assembly
 player_sprite = pygame.image.load('Sprites/Player.png').convert_alpha()
+red_player_sprite = pygame.image.load('Sprites/Red_Player.png').convert_alpha()
 
 #enemy sprites
 enemy_sprite = pygame.image.load('Sprites/Enemy.png').convert_alpha()
