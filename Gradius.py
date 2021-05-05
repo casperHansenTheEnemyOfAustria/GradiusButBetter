@@ -346,6 +346,8 @@ class Enemy(Entity):
 
         self. time = 0
 
+        self.exp = [explosion_1, explosion_2, explosion_3, explosion_4, explosion_5]
+
 
     def update(self, events):
         super().update(events)
@@ -388,17 +390,10 @@ class Enemy(Entity):
         super().draw()
 
     def die(self):
-        if self.time - self.death_time < 100:
-            self.sprite = explosion_1
-        elif self.time - self.death_time < 200:
-            self.sprite = explosion_2
-        elif self.time - self.death_time < 300:
-            self.sprite = explosion_3
-        elif self.time - self.death_time < 400:
-            self.sprite = explosion_4
-        elif self.time - self.death_time < 500:
-            self.sprite = explosion_5
-        elif self.time - self.death_time < 505:
+        stage = min((self.time - self.death_time) // 100, 4)
+        if self.time - self.death_time < 600:
+            self.sprite = self.exp[stage]
+        else:
             super().destroy()
 
 
@@ -483,7 +478,7 @@ class BulletManager:
                     sprite = pygame.transform.scale(self.sprite, (20, 10))
                     damage = 3
                     
-                temp = Bullet(origin_x, origin_y + 30, direction, self.screen, sprite, damage)
+                temp = Bullet(origin_x + 60, origin_y + 30, direction, self.screen, sprite, damage)
 
                 bullets.append(temp)
                 objects.append(temp)
