@@ -58,6 +58,9 @@ def start_game():
 
 
 def stop_game():
+    """
+    resets the game variables and objects
+    """
     global objects
     global keys
     global bullets
@@ -77,6 +80,9 @@ def stop_game():
 
 
 def render_scores(da_screen, scores, positions):
+    """
+    creates an array of renderable text objects
+    """
     score_render = []
     for index in range(10):
         score_render.append(obj.Text(positions[index][0], positions[index][1], da_screen, f'{index}. {scores[index]["name"]} - {scores[index]["score"]}', 'comicsansms', 40))
@@ -85,11 +91,14 @@ def render_scores(da_screen, scores, positions):
 
 
 def update_score():
+    """
+    checks if the player scored higher than any of the current scores and then puts them on the scoreboard
+    """
     global scores
     global player_score
     global name
     
-    for i,entry in enumerate(scores):
+    for i, entry in enumerate(scores):
         if player_score >= int(entry['score']):
             scores.insert(i,{'name': name, 'score': player_score})
             scores.pop(len(scores)-1)
@@ -98,6 +107,10 @@ def update_score():
         
 
 def load_scores():
+    """
+    unpacks the scores from the pickle file, if no score has been saved it creates a new scoreboard and a new pickle file
+    """
+    
     try:
         #checks if the save file is here
         with open('save.pickle', 'rb') as save:
@@ -116,6 +129,9 @@ def load_scores():
 
 
 def save_scores():
+    """
+    writes the current scores down into the pickle file
+    """
     global scores
 
     with open('save.pickle', 'wb') as file:
@@ -128,18 +144,27 @@ def check_collision(hitbox1, hitbox2):
 
 
 def change_gamestate(new_state):
+    """
+    changes the gamestate
+    """
     global gamestate
     pygame.display.set_caption(str(new_state))
     gamestate = new_state
 
 
 def quit():
+    """
+    shuts down the game and saves the scores
+    """
     save_scores()
     pygame.quit
     sys.exit()
 
 
 class MenuManager:
+    """
+    manage menu assets and assets, button functions and rendering 
+    """
     def __init__(self, buttons, images, labels):
         self._buttons = buttons
         self._images = images
@@ -148,6 +173,7 @@ class MenuManager:
     #player control
     def update(self, events):
         for event in events:
+            #checks if the ODD
             if event.type == MOUSEBUTTONUP:
                 for button in self._buttons:
                     if button.is_clicked(event.pos):
@@ -171,7 +197,9 @@ class MenuManager:
 
 
 class GameManager:
-
+    """
+    manages game assets such as the player and the enemies 
+    """
     def __init__(self, objects):
         global stop
 
@@ -193,7 +221,6 @@ class GameManager:
                 keys.remove(event.key)
                 continue
 
-            
 
         for object in self._objects:
             object.update(events)
@@ -206,7 +233,7 @@ class GameManager:
 
 
 class GameObject:
-
+    
     def __init__(self, position_x, position_y, screen, sprite):
         self.position = pygame.Vector2(position_x, position_y)
         self.velocity = pygame.Vector2(0, 0)
@@ -638,8 +665,8 @@ while True:
             
             if gamestate == Gamestate.GAME_OVER:
                  #accept the name and go to scoreboard
-                if event.key == pygame.K_RETURN:
-                    gamestate = Gamestate.SCOREBOARD
+                if event.key == pygame.K_RETURN and len(name) > 2:
+                    change_gamestate(Gamestate.SCOREBOARD)
                     update_score()
                     
                 #backspace function
@@ -647,7 +674,7 @@ while True:
                     name = name[:-1]
                     
                 #add key to name
-                elif len(name) < 6 and len(name) > 2:
+                elif len(name) < 6:
                     name += event.unicode
             
             elif event.key == K_m:
