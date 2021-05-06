@@ -447,9 +447,10 @@ class Enemy(Entity):
         if self._time - self._death_time < 600:
             self.sprite = self._exp[stage]
         else:
-            temp = PowerUp(self.position.x, self.position.y)
-            objects.append(temp)
-            power_ups.append(temp)
+            if randint(1, 100) > 60:
+                temp = PowerUp(self.position.x, self.position.y)
+                objects.append(temp)
+                power_ups.append(temp)
             super().destroy()
 
 
@@ -464,15 +465,25 @@ class EnemyManager:
 
         self._last_time = 0
 
+        self._count = 0
+
 
     def update(self, events):
         global enemies
         time = pygame.time.get_ticks()
+
         if time - self._last_time > self._start:
-            new_enemy = Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(50, 400), randint(1, 4) / 10, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), 5, len(enemies))
-            enemies.append(new_enemy)
-            objects.append(new_enemy)
-            self._last_time = time
+            if self._count % 10 != 0 or self._count == 0:
+                new_enemy = Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(50, 400), randint(1, 4) / 10, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), 5, len(enemies))
+                enemies.append(new_enemy)
+                objects.append(new_enemy)
+                self._last_time = time
+            else:
+                new_enemy = Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(400, 800), randint(1, 2) / 10, pygame.transform.scale(boss_sprite, (40 * 5, 40 * 5)), pygame.transform.scale(bullet_sprite, (10, 5)), 10, len(enemies))
+                enemies.append(new_enemy)
+                objects.append(new_enemy)
+                self._last_time = time
+            self._count += 1
 
 
 class Bullet(GameObject):
@@ -593,7 +604,7 @@ speed_up_sprite = pygame.image.load('Sprites/SpeedUp.png').convert_alpha()
 
 #enemy sprites
 enemy_sprite = pygame.image.load('Sprites/Enemy.png').convert_alpha()
-#objects.append(Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * 0.3, 50, 0.1, screen, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5))))
+boss_sprite = pygame.image.load('Sprites/Boss.png').convert_alpha()
 
 #explosion stages
 explosion_1 = pygame.transform.scale(pygame.image.load('Sprites/Exp1.png').convert_alpha(), (4 * 5, 3 * 5))
