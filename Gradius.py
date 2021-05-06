@@ -13,6 +13,7 @@ BASE_ATTACK = 5
 #Lists for global management
 scores = []
 player_score = 0
+player_HP = 1
 objects = []
 keys = set([])
 bullets = []
@@ -310,6 +311,9 @@ class Player(Entity):
 
     def update(self, events):
         super().update(events)
+
+        global player_HP
+        player_HP = self.hp/50
 
         time = pygame.time.get_ticks()
 
@@ -638,6 +642,7 @@ while True:
     screen.fill((0, 0, 0))
     events = pygame.event.get()
 
+
     if gamestate == Gamestate.MENU:
         main_menu.update(events)
 
@@ -656,6 +661,7 @@ while True:
         scoreboard_menu.update(events)
     
     elif gamestate == Gamestate.RUNNING:
+        pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(25, 100, 100 * player_HP, 25))
         if game_manager:
             game_manager.update(events)
             obj.Text(20, 20, screen, f'Score:{player_score}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
