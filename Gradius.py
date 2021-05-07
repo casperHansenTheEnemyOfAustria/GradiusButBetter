@@ -447,7 +447,7 @@ class Enemy(Entity):
         if self._time - self._death_time < 600:
             self.sprite = self._exp[stage]
         else:
-            if randint(1, 100) > 60:
+            if randint(1, 100) > 85:
                 temp = PowerUp(self.position.x, self.position.y)
                 objects.append(temp)
                 power_ups.append(temp)
