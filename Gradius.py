@@ -150,7 +150,7 @@ def change_gamestate(new_state):
     changes the gamestate
     """
     global gamestate
-    pygame.display.set_caption(str(new_state))
+    pygame.display.set_caption(str(new_state).split('.')[-1])
     gamestate = new_state
 
 
@@ -618,34 +618,40 @@ pygame.init()
 
 #Screen options
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption(str(gamestate))
+pygame.display.set_caption(str(gamestate).split('.')[-1])
 
 ## game assets
 #sprite for the bullet
-bullet_sprite = pygame.image.load('Sprites/Bullet.png').convert_alpha()
+try:
+    bullet_sprite = pygame.image.load('Sprites/Bullet.png').convert_alpha()
 
-#player sprite and assembly
-player_sprite = pygame.image.load('Sprites/Player.png').convert_alpha()
-red_player_sprite = pygame.image.load('Sprites/Red_Player.png').convert_alpha()
+    #player sprite and assembly
+    player_sprite = pygame.image.load('Sprites/Player.png').convert_alpha()
+    red_player_sprite = pygame.image.load('Sprites/Red_Player.png').convert_alpha()
 
-power_up_sprite = pygame.image.load('Sprites/PowerUp.png').convert_alpha()
-speed_up_sprite = pygame.image.load('Sprites/SpeedUp.png').convert_alpha()
+    power_up_sprite = pygame.image.load('Sprites/PowerUp.png').convert_alpha()
+    speed_up_sprite = pygame.image.load('Sprites/SpeedUp.png').convert_alpha()
 
-#enemy sprites
-enemy_sprite = pygame.image.load('Sprites/Enemy.png').convert_alpha()
-boss_sprite = pygame.image.load('Sprites/Boss.png').convert_alpha()
+    #enemy sprites
+    enemy_sprite = pygame.image.load('Sprites/Enemy.png').convert_alpha()
+    boss_sprite = pygame.image.load('Sprites/Boss.png').convert_alpha()
 
-#explosion stages
-explosion_1 = pygame.transform.scale(pygame.image.load('Sprites/Exp1.png').convert_alpha(), (4 * 5, 3 * 5))
-explosion_2 = pygame.transform.scale(pygame.image.load('Sprites/Exp2.png').convert_alpha(), (6 * 5, 5 * 5))
-explosion_3 = pygame.transform.scale(pygame.image.load('Sprites/Exp3.png').convert_alpha(), (8 * 5, 7 * 5))
-explosion_4 = pygame.transform.scale(pygame.image.load('Sprites/Exp4.png').convert_alpha(), (20 * 5, 20 * 5))
-explosion_5 = pygame.transform.scale(pygame.image.load('Sprites/Exp5.png').convert_alpha(), (20 * 5, 20 * 5))
+    #explosion stages
+    explosion_1 = pygame.transform.scale(pygame.image.load('Sprites/Exp1.png').convert_alpha(), (4 * 5, 3 * 5))
+    explosion_2 = pygame.transform.scale(pygame.image.load('Sprites/Exp2.png').convert_alpha(), (6 * 5, 5 * 5))
+    explosion_3 = pygame.transform.scale(pygame.image.load('Sprites/Exp3.png').convert_alpha(), (8 * 5, 7 * 5))
+    explosion_4 = pygame.transform.scale(pygame.image.load('Sprites/Exp4.png').convert_alpha(), (20 * 5, 20 * 5))
+    explosion_5 = pygame.transform.scale(pygame.image.load('Sprites/Exp5.png').convert_alpha(), (20 * 5, 20 * 5))
 
-#audio
-player_shoot = pygame.mixer.Sound('audio/player_shoot.wav')
-enemy_explode = pygame.mixer.Sound('audio/enemy_explosion.wav')
-pygame.mixer.music.load('audio/Concert_Of_The_Aerogami.wav')
+    #audio
+    player_shoot = pygame.mixer.Sound('audio/player_shoot.wav')
+    enemy_explode = pygame.mixer.Sound('audio/enemy_explosion.wav')
+    pygame.mixer.music.load('audio/Concert_Of_The_Aerogami.wav')
+
+except:
+    print('Not all assets could be loaded')
+
+
 ## menu assets
 menu_buttons = []
 menu_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.RUNNING),(SCREEN_WIDTH//2)-100,250,screen, ' Start! ', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to start the game
@@ -668,8 +674,6 @@ scoreboard_label_positions = [(300,100), (300,150), (300,200), (300,250), (300,3
 scores = load_scores()
 scoreboard_labels = render_scores(screen, scores, scoreboard_label_positions)
 
-
-
 #managers
 main_menu = MenuManager(menu_buttons, menu_images, menu_labels)
 scoreboard_menu = MenuManager(scoreboard_buttons, scoreboard_images, scoreboard_labels)
@@ -682,17 +686,13 @@ while True:
     screen.fill((0, 0, 0))
     events = pygame.event.get()
 
-
     if gamestate == Gamestate.MENU:
         main_menu.update(events)
 
     elif gamestate == Gamestate.GAME_OVER:
         #display name on the screen
-        
-        obj.Text(400, 80, screen, f'FINAL SCORE:{player_score}', 'impact', 80, pygame.Color(255,255,255)).render()
-        
         obj.Text(500,300,screen,f'Name:{name}', 'impact', 50, pygame.Color(255,255,255)).render()
-        pass
+        obj.Text(400, 80, screen, f'FINAL SCORE:{player_score}', 'impact', 80, pygame.Color(255,255,255)).render()
 
     elif gamestate == Gamestate.SCOREBOARD:
 
@@ -741,5 +741,4 @@ while True:
                     pygame.mixer.music.play(-1,0.0)
                     
                                 
-
     pygame.display.update()
