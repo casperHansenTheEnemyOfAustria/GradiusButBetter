@@ -67,6 +67,7 @@ def stop_game():
     global keys
     global bullets
     global enemies
+    global power_ups
     global game_manager
     global stop
 
@@ -75,6 +76,7 @@ def stop_game():
     keys = set([])
     bullets = []
     enemies = []
+    power_ups = []
     game_manager = None
     pygame.mixer.music.stop()
 
@@ -534,9 +536,12 @@ class Bullet(GameObject):
                 if self in bullets:
                     bullets.remove(self)
                     super().destroy()
-        if self.position.x >= SCREEN_WIDTH:
-            bullets.remove(self)
-            super().destroy()
+        try:
+            if self.position.x >= SCREEN_WIDTH:
+                bullets.remove(self)
+                super().destroy()
+        except(ValueError):
+            pass
         if self.position.x < -100:
             bullets.remove(self)
             super().destroy()
