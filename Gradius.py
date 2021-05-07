@@ -339,7 +339,7 @@ class Player(Entity):
             if event.type == KEYDOWN and event.key == K_SPACE:
                 self._start_shooting_time = time
             if event.type == KEYUP:
-                if event.key == K_SPACE:
+                if event.key == K_SPACE and self._start_shooting_time:
                     if time - self._start_shooting_time > 1000:
                         self._bullet_manager.big_shoot(self.position.x, self.position.y, self.power)
                     self._start_shooting_time = None
@@ -364,6 +364,7 @@ class Player(Entity):
                     self.power += 1
                 power.destroy()
                 power_ups.remove(power)
+                self.heal()
         #player die
         if self.hp < 1:
             change_gamestate(Gamestate.GAME_OVER)            
