@@ -273,7 +273,7 @@ class Entity(GameObject):
         super().__init__(position_x, position_y, sprite)
 
         self._maxHP = maxHP
-        self.hp = maxHP
+        self._hp = maxHP
 
         self.hits = 0
 
@@ -283,13 +283,13 @@ class Entity(GameObject):
 
 
     def take_damage(self, damage):
-        self.hp = max(0, self.hp - (randint(1, 10) + BASE_ATTACK) * damage)
+        self._hp = max(0, self._hp - (randint(1, 10) + BASE_ATTACK) * damage)
         self.last_damage = pygame.time.get_ticks()
         self.do_draw = False
 
 
     def heal(self):
-        self.hp = min(self._maxHP, self.hp + randint(5, 10))
+        self._hp = min(self._maxHP, self._hp + randint(5, 10))
 
 
 class Player(Entity):
@@ -308,12 +308,16 @@ class Player(Entity):
 
         self.power = 1
 
+        self._shooting = False
+
 
     def update(self, events):
         super().update(events)
 
+        self._shooting = False
+
         global player_HP
-        player_HP = self.hp/50
+        player_HP = self._hp/50
 
         time = pygame.time.get_ticks()
 
@@ -332,17 +336,22 @@ class Player(Entity):
             self.velocity.x = 0
 
         #shoot
-        if K_SPACE in keys:
-            self._bullet_manager.shoot(self.position.x, self.position.y, 1, self.power)
-
         for event in events:
             if event.type == KEYDOWN and event.key == K_SPACE:
                 self._start_shooting_time = time
+                self._bullet_manager.tap_shoot(self.position.x, self.position.y, self.power)
+                self._shooting = True
             if event.type == KEYUP:
                 if event.key == K_SPACE and self._start_shooting_time:
                     if time - self._start_shooting_time > 1000:
                         self._bullet_manager.big_shoot(self.position.x, self.position.y, self.power)
+                        self._shooting = True
                     self._start_shooting_time = None
+
+        if K_SPACE in keys and not self._shooting:
+            self._bullet_manager.shoot(self.position.x, self.position.y, 1, self.power)
+            self._shooting = True
+
 
         if self._start_shooting_time != None and time - self._start_shooting_time > 1000:
             self.sprite = pygame.transform.scale(red_player_sprite, (70, 35))
@@ -361,12 +370,12 @@ class Player(Entity):
                 if power.type == "Speed":
                     self.move_speed += 0.1
                 if power.type == "Power":
-                    self.power += 1
+                    self.power += 0.2
                 power.destroy()
                 power_ups.remove(power)
                 self.heal()
         #player die
-        if self.hp < 1:
+        if self._hp < 1:
             change_gamestate(Gamestate.GAME_OVER)            
             stop_game()
             return True
@@ -407,11 +416,11 @@ class Enemy(Entity):
 
         self._time = pygame.time.get_ticks()
 
-        if self.position.x > SCREEN_WIDTH*0.8 and self.hp > 0:
+        if self.position.x > SCREEN_WIDTH*0.8 and self._hp > 0:
             #spawn behaviour
             self.velocity.x = -1 * self._move_speed * deltaTime
             self.velocity.y = self._move_speed * self._cycle / 2 * deltaTime
-        elif self.hp > 0:
+        elif self._hp > 0:
             #live behaviour
             self.velocity.x = -0.4 * self._move_speed * deltaTime
             self.velocity.y = self._move_speed * self._cycle / 2 * deltaTime
@@ -433,6 +442,10 @@ class Enemy(Entity):
 
         if self.position.y < SCREEN_HEIGHT * 0.2:
             self._cycle = 1
+
+        if self.position.x < -100:
+            enemies.remove(self)
+            self.destroy()
         
         if self._time - self._last_shot > 800:
             self._bullet_manager.shoot(self.position.x, self.position.y + 55, -0.5, 1)
@@ -521,16 +534,19 @@ class Bullet(GameObject):
                 if self in bullets:
                     bullets.remove(self)
                     super().destroy()
-        elif self.position.x >= SCREEN_WIDTH:
+        if self.position.x >= SCREEN_WIDTH:
             bullets.remove(self)
             super().destroy()
+        if self.position.x < -100:
+            bullets.remove(self)
+            super().destroy()
+        
 
 class BulletManager:
     
     def __init__(self, sprite):
         self._last_time = pygame.time.get_ticks()
         self.sprite = sprite
-
 
     def shoot(self, origin_x, origin_y, direction, multiplier):
         time = pygame.time.get_ticks()
@@ -541,9 +557,6 @@ class BulletManager:
 
                 sprite = pygame.transform.scale(self.sprite, (10, 5))
                 damage = multiplier
-                if direction == 1 and time - self._last_time > 155:
-                    sprite = pygame.transform.scale(self.sprite, (20, 10))
-                    damage = 2 * multiplier
                     
                 temp = Bullet(origin_x + 60, origin_y + 30, direction, sprite, damage)
 
@@ -557,6 +570,21 @@ class BulletManager:
             bullets.append(new_bullet)
             objects.append(new_bullet)
             self._last_time = time
+    
+    def tap_shoot(self, origin_x, origin_y, multiplier):
+        time = pygame.time.get_ticks()
+        if time > self._last_time + 150:
+                if not muted:    
+                    player_shoot.play()
+
+                sprite = pygame.transform.scale(self.sprite, (20, 10))
+                damage = 2 * multiplier
+                    
+                temp = Bullet(origin_x + 60, origin_y + 30, 1, sprite, damage)
+
+                bullets.append(temp)
+                objects.append(temp)
+                self._last_time = time
 
     def big_shoot(self, origin_x, origin_y, multiplier):
         if not muted:    
