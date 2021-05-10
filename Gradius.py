@@ -822,6 +822,13 @@ while True:
                         stop_game()
                         change_gamestate(Gamestate.MENU)
 
+                    elif event.key == K_m:
+                        muted = not muted
+                        if muted:
+                            pygame.mixer.music.stop()
+                        else:
+                            pygame.mixer.music.play(-1,0.0)
+
 
             elif gamestate == Gamestate.SCOREBOARD:
                 #go to menu from scoreboard
@@ -847,12 +854,7 @@ while True:
                     name += event.unicode
             
 
-            elif event.key == K_m:
-                muted = not muted
-                if muted:
-                    pygame.mixer.music.stop()
-                else:
-                    pygame.mixer.music.play(-1,0.0)
+            
                     
                                 
     pygame.display.update()
