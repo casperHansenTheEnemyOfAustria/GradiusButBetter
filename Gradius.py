@@ -480,22 +480,26 @@ class Enemy(Entity):
             super().destroy()
 
 class Boss(Entity):
-    def __init__(self, position_x, position_y, maxHP, move_speed, sprite, bullet_sprite, points):
-        super().__init__(position_x, position_y, maxHP, sprite)
-
-        self._move_speed = move_speed
+    def __init__(self, position_x, position_y, sprite, bullet_sprite, difficulty):
+        super().__init__(position_x, position_y, 300 * difficulty, sprite)
 
         self.bullet_sprite = bullet_sprite
 
-        self.points = points
-
         self._bullet_manager = BulletManager(bullet_sprite)
+
+        self._difficulty = difficulty
+
+        self.points = 10 * self._difficulty
+        
+        self._move_speed = self._difficulty / 10
 
         self._last_shot = 0
 
         self._death_time = None
 
         self._time = 0
+
+        self._shoot_speed = 800  / self._difficulty
 
         self._exp = [explosion_1, explosion_2, explosion_3, explosion_4, explosion_5]
 
@@ -526,8 +530,8 @@ class Boss(Entity):
                 enemies.remove(self)
             self.die()
         
-        if self._time - self._last_shot > 800 and self._death_time == None:
-            self._bullet_manager.shoot(self.position.x, self.position.y + 75, -0.75, 2, 3)
+        if self._time - self._last_shot > self._shoot_speed and self._death_time == None:
+            self._bullet_manager.shoot(self.position.x, self.position.y + 75, -0.75, self._difficulty, 3)
             self._last_shot =self._time
 
         if self.do_draw:
@@ -562,6 +566,8 @@ class EnemyManager:
 
         self._count = 0
 
+        self._boss_interval = 10
+
 
     def update(self, events):
         global enemies
@@ -569,19 +575,20 @@ class EnemyManager:
         time = pygame.time.get_ticks()
         if not active_boss:    
             if time - self._last_time > self._start:
-                if self._count % 10 != 0 or self._count == 0:
+                if self._count % self._boss_interval != 0 or self._count == 0:
                     new_enemy = Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(50, 200), randint(1, 4) / 10, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), 5)
                     enemies.append(new_enemy)
                     objects.append(new_enemy)
                     self._last_time = time
                     self._count += 1
                 elif enemies == []:
-                    new_enemy = Boss(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(600, 800), randint(1, 2) / 10, pygame.transform.scale(boss_sprite, (17 * 5, 40 * 5)), pygame.transform.scale(bullet_sprite, (10, 5)), 10)
+                    new_enemy = Boss(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, pygame.transform.scale(boss_sprite, (17 * 5, 40 * 5)), pygame.transform.scale(bullet_sprite, (10, 5)), randint(1, 3))
                     enemies.append(new_enemy)
                     objects.append(new_enemy)
                     self._last_time = time
                     active_boss = True
-                    self._count += 1
+                    self._count = 0
+                    self._boss_interval = randint(5, 15)
 
 
 class Bullet(GameObject):
