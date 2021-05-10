@@ -373,6 +373,7 @@ class Player(Entity):
                     self.move_speed += 0.1
                 if power.type == "Power":
                     self.power += 0.2
+                player_power.play()
                 power.destroy()
                 power_ups.remove(power)
                 self.heal()
@@ -540,7 +541,7 @@ class Bullet(GameObject):
             if self.position.x >= SCREEN_WIDTH:
                 bullets.remove(self)
                 super().destroy()
-        except(ValueError):
+        except ValueError:
             pass
         if self.position.x < -100:
             bullets.remove(self)
@@ -650,11 +651,12 @@ try:
 
     #audio
     player_shoot = pygame.mixer.Sound('audio/player_shoot.wav')
-    enemy_explode = pygame.mixer.Sound('audio/enemy_explosion.wav')
+    player_power = pygame.mixer.Sound('audio/power.wav')
+    enemy_explode = pygame.mixer.Sound('audio/enemy_explsion.wav')
     pygame.mixer.music.load('audio/Concert_Of_The_Aerogami.wav')
 
-except:
-    print('Not all assets could be loaded')
+except Exception as e:
+    print('Not all assets could be loaded: ' + str(e) + ' at line ' + str(e.__traceback__.tb_lineno))
 
 
 ## menu assets
