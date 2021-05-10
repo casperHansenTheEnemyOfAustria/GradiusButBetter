@@ -340,6 +340,8 @@ class Player(Entity):
         if not K_a in keys and not K_d in keys or K_a in keys and K_d in keys:
             self.velocity.x = 0
 
+        self.position = pygame.Vector2(max(min(self.position.x, SCREEN_WIDTH - 30), -30), max(min(self.position.y, SCREEN_HEIGHT - 30), -30))
+
         #shoot
         for event in events:
             if event.type == KEYDOWN and event.key == K_SPACE:
