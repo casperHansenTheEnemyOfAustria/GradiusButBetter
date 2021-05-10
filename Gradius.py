@@ -215,8 +215,6 @@ class GameManager:
     def update(self, events):
     
         for event in events:
-            if event.type == KEYDOWN and event.key == K_r:
-                start_game()
 
             if event.type == KEYDOWN:
                 keys.add(event.key)
@@ -652,7 +650,7 @@ try:
     #audio
     player_shoot = pygame.mixer.Sound('audio/player_shoot.wav')
     player_power = pygame.mixer.Sound('audio/power.wav')
-    enemy_explode = pygame.mixer.Sound('audio/enemy_explsion.wav')
+    enemy_explode = pygame.mixer.Sound('audio/enemy_explosion.wav')
     pygame.mixer.music.load('audio/Concert_Of_The_Aerogami.wav')
 
 except Exception as e:
@@ -673,9 +671,11 @@ menu_labels.append(obj.Text(200,50,screen,'The paper plane that could!', 'comics
 
 ##scoreboard assets
 scoreboard_buttons = []
-scoreboard_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.MENU), 500, 500, screen, ' Menu ', 'impact', 80, pygame.Color(255,255,255),pygame.Color(120,120,120)))
-# scoreboard_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.RUNNING), 600, 500, screen, ' Restart ', 'impact', 80, pygame.Color(255,255,255),pygame.Color(120,120,120)))
+scoreboard_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.MENU), 380, 500, screen, ' Menu ', 'impact', 80, pygame.Color(255,255,255),pygame.Color(120,120,120)))
+scoreboard_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.RUNNING), 680, 500, screen, ' Play ', 'impact', 80, pygame.Color(255,255,255),pygame.Color(120,120,120)))
+
 scoreboard_images = []
+#no images :(
 
 scoreboard_label_positions = [(300,100), (300,150), (300,200), (300,250), (300,300), (650,100), (650,150), (650,200), (650,250), (650,300)]
 scores = load_scores()
@@ -721,13 +721,42 @@ while True:
     for event in events:
 
         #closes the game
-        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE and gamestate == Gamestate.MENU):
             quit()
 
         if event.type == KEYDOWN:
+
+            if gamestate == Gamestate.MENU :
+                #get into the game from the menu
+                if event.key == pygame.K_RETURN:
+                    change_gamestate(Gamestate.RUNNING)
+
+
+            elif gamestate == Gamestate.RUNNING:
+
+                if event.type == KEYDOWN:
+
+                    #restart game when playing
+                    if  event.key == K_r:
+                        start_game()
+                    
+                    #quit game mid game
+                    if event.key == K_ESCAPE:
+                        stop_game()
+                        change_gamestate(Gamestate.MENU)
+
+
+            elif gamestate == Gamestate.SCOREBOARD:
+                #go to menu from scoreboard
+                if event.key == pygame.K_ESCAPE:
+                    change_gamestate(Gamestate.MENU)
+                
+                if event.key == pygame.K_RETURN:
+                    change_gamestate(Gamestate.RUNNING)
             
-            if gamestate == Gamestate.GAME_OVER:
-                 #accept the name and go to scoreboard
+
+            elif gamestate == Gamestate.GAME_OVER:
+                #accept the name and go to scoreboard
                 if event.key == pygame.K_RETURN and len(name) > 2:
                     change_gamestate(Gamestate.SCOREBOARD)
                     update_score()
@@ -740,6 +769,7 @@ while True:
                 elif len(name) < 6:
                     name += event.unicode
             
+
             elif event.key == K_m:
                 muted = not muted
                 if muted:
