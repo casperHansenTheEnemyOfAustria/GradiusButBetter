@@ -356,7 +356,7 @@ class Player(Entity):
                     self._start_shooting_time = None
 
         if K_SPACE in keys and not self._shooting:
-            self._bullet_manager.shoot(self.position.x, self.position.y, 1, self.power)
+            self._bullet_manager.shoot(self.position.x, self.position.y, 1, self.power, 1)
             self._shooting = True
 
 
@@ -458,7 +458,7 @@ class Enemy(Entity):
             self.destroy()
         
         if self._time - self._last_shot > 800 and self._death_time == None:
-            self._bullet_manager.shoot(self.position.x, self.position.y + 55, -0.5, 1)
+            self._bullet_manager.shoot(self.position.x, self.position.y + 55, -0.5, 1 , 1)
             self._last_shot =self._time
 
         if self.do_draw:
@@ -471,7 +471,7 @@ class Enemy(Entity):
         if self._time - self._death_time < 600:
             self.sprite = self._exp[stage]
         else:
-            if randint(1, 100) > 85:
+            if randint(1, 100) < 25:
                 temp = PowerUp(self.position.x, self.position.y)
                 objects.append(temp)
                 power_ups.append(temp)
@@ -505,11 +505,11 @@ class Boss(Entity):
         if self.position.x > SCREEN_WIDTH*0.8 and self._hp > 0:
             #spawn behaviour
             self.velocity.x = -1 * self._move_speed * deltaTime
-            self.velocity.y = self._move_speed * deltaTime
+            self.velocity.y = 0
         elif self._hp > 0:
             #live behaviour
             self.velocity.x = 0
-            self.velocity.y = self._move_speed * (player.position.y - 40 - self.position.y) / 150 * deltaTime
+            self.velocity.y = self._move_speed * (player.position.y - 60 - self.position.y) / 40 * deltaTime
         else:
             #die
             self.velocity = pygame.Vector2(0, 0)
@@ -525,7 +525,7 @@ class Boss(Entity):
             self.die()
         
         if self._time - self._last_shot > 800 and self._death_time == None:
-            self._bullet_manager.shoot(self.position.x, self.position.y + 55, -0.5, 1)
+            self._bullet_manager.shoot(self.position.x, self.position.y + 75, -0.75, 2, 3)
             self._last_shot =self._time
 
         if self.do_draw:
@@ -538,14 +538,13 @@ class Boss(Entity):
         if self._time - self._death_time < 600:
             self.sprite = self._exp[stage]
         else:
-            if randint(1, 100) > 85:
+            if randint(1, 100) < 80:
                 temp = PowerUp(self.position.x, self.position.y)
                 objects.append(temp)
                 power_ups.append(temp)
             global active_boss
             active_boss = False
             super().destroy()
-
 
 
 class EnemyManager:
@@ -575,7 +574,7 @@ class EnemyManager:
                     self._last_time = time
                     self._count += 1
                 elif enemies == []:
-                    new_enemy = Boss(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(400, 800), randint(1, 2) / 10, pygame.transform.scale(boss_sprite, (17 * 5, 40 * 5)), pygame.transform.scale(bullet_sprite, (10, 5)), 10)
+                    new_enemy = Boss(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(600, 800), randint(1, 2) / 10, pygame.transform.scale(boss_sprite, (17 * 5, 40 * 5)), pygame.transform.scale(bullet_sprite, (10, 5)), 10)
                     enemies.append(new_enemy)
                     objects.append(new_enemy)
                     self._last_time = time
@@ -634,17 +633,16 @@ class BulletManager:
         self._last_time = pygame.time.get_ticks()
         self.sprite = sprite
 
-    def shoot(self, origin_x, origin_y, direction, multiplier):
+    def shoot(self, origin_x, origin_y, direction, multiplier, size):
         time = pygame.time.get_ticks()
         if direction == 1:
             if time > self._last_time + 150:
                 if not muted:    
                     player_shoot.play()
 
-                sprite = pygame.transform.scale(self.sprite, (10, 5))
-                damage = multiplier
+                sprite = pygame.transform.scale(self.sprite, (10 * size, 5 * size))
                     
-                temp = Bullet(origin_x + 60, origin_y + 30, direction, sprite, damage)
+                temp = Bullet(origin_x + 60, origin_y + 30, direction, sprite, multiplier)
 
                 bullets.append(temp)
                 objects.append(temp)
@@ -652,7 +650,10 @@ class BulletManager:
         elif time > self._last_time + 150:
             if not muted:
                 player_shoot.play()
-            new_bullet = Bullet(origin_x, origin_y, direction, self.sprite, 1)
+
+            sprite = pygame.transform.scale(self.sprite, (10 * size, 5 * size))
+
+            new_bullet = Bullet(origin_x, origin_y, direction, sprite, multiplier)
             bullets.append(new_bullet)
             objects.append(new_bullet)
             self._last_time = time
