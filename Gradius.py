@@ -39,7 +39,9 @@ def start_game():
     global enemies
     global stop
     global player
+    global active_boss
     
+    active_boss = False
     player_score = 0
     stop = False
     objects = []
@@ -505,7 +507,7 @@ class Boss(Entity):
         if self.position.x > SCREEN_WIDTH*0.8 and self._hp > 0:
             #spawn behaviour
             self.velocity.x = -1 * self._move_speed * deltaTime
-            self.velocity.y = 0
+            self.velocity.y = self._move_speed * (player.position.y - 60 - self.position.y) / 100 * deltaTime
         elif self._hp > 0:
             #live behaviour
             self.velocity.x = 0
