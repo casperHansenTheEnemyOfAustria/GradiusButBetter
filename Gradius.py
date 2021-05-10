@@ -808,7 +808,16 @@ while True:
 
         if event.type == KEYDOWN:
 
-            if gamestate == Gamestate.MENU :
+            #global keys
+            if event.key == K_m:
+                muted = not muted
+                if muted:
+                    pygame.mixer.music.stop()
+                else:
+                    pygame.mixer.music.play(-1,0.0)
+
+
+            elif gamestate == Gamestate.MENU :
                 #get into the game from the menu
                 if event.key == pygame.K_RETURN:
                     change_gamestate(Gamestate.RUNNING)
@@ -827,7 +836,7 @@ while True:
                         stop_game()
                         change_gamestate(Gamestate.MENU)
 
-                    elif event.key == K_m:
+                    if event.key == K_m:
                         muted = not muted
                         if muted:
                             pygame.mixer.music.stop()
@@ -858,6 +867,7 @@ while True:
                 elif len(name) < 6:
                     name += event.unicode
             
+
 
             
                     
