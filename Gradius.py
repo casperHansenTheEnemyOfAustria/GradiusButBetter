@@ -378,7 +378,8 @@ class Player(Entity):
                     self.move_speed += 0.1
                 if power.type == "Power":
                     self.power += 0.2
-                player_power.play()
+                if not muted:
+                    player_power.play()
                 power.destroy()
                 power_ups.remove(power)
                 self.heal()
