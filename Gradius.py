@@ -443,6 +443,7 @@ class Enemy(Entity):
                 self._death_time = self._time
                 if not muted:
                     enemy_explode.play()
+                self._bullet_manager = None
                 enemies.remove(self)
             self.die()
 
@@ -456,7 +457,7 @@ class Enemy(Entity):
             enemies.remove(self)
             self.destroy()
         
-        if self._time - self._last_shot > 800:
+        if self._time - self._last_shot > 800 and self._death_time == None:
             self._bullet_manager.shoot(self.position.x, self.position.y + 55, -0.5, 1)
             self._last_shot =self._time
 
@@ -519,10 +520,11 @@ class Boss(Entity):
                 self._death_time = self._time
                 if not muted:
                     enemy_explode.play()
+                self._bullet_manager = None
                 enemies.remove(self)
             self.die()
         
-        if self._time - self._last_shot > 800:
+        if self._time - self._last_shot > 800 and self._death_time == None:
             self._bullet_manager.shoot(self.position.x, self.position.y + 55, -0.5, 1)
             self._last_shot =self._time
 
