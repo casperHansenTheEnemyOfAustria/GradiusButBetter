@@ -575,7 +575,7 @@ class EnemyManager:
                     self._last_time = time
                     self._count += 1
                 elif enemies == []:
-                    new_enemy = Boss(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(400, 800), randint(1, 2) / 10, pygame.transform.scale(boss_sprite, (40 * 5, 40 * 5)), pygame.transform.scale(bullet_sprite, (10, 5)), 10)
+                    new_enemy = Boss(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(400, 800), randint(1, 2) / 10, pygame.transform.scale(boss_sprite, (17 * 5, 40 * 5)), pygame.transform.scale(bullet_sprite, (10, 5)), 10)
                     enemies.append(new_enemy)
                     objects.append(new_enemy)
                     self._last_time = time
