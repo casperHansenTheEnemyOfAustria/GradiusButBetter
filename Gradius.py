@@ -399,17 +399,20 @@ class Player(Entity):
 
 class Enemy(Entity):
 
-    def __init__(self, position_x, position_y, maxHP, move_speed, sprite, bullet_sprite, points):
+    def __init__(self, position_x, position_y, sprite, bullet_sprite, points, difficulty):
+        
+        self._difficulty = difficulty + randint(1, 3)
 
-        super().__init__(position_x, position_y, maxHP, sprite)
+        super().__init__(position_x, position_y, 50 + self._difficulty * 30, sprite)
 
         self._bullet_manager = BulletManager(bullet_sprite)
 
-        self._move_speed = move_speed
+
+        self._move_speed = 0.1 * self._difficulty
 
         self._cycle = choice([1, -1])
 
-        self.points = points
+        self.points = floor(points + difficulty)
 
         self._last_shot = 0
 
@@ -499,7 +502,7 @@ class Boss(Entity):
 
         self._time = 0
 
-        self._shoot_speed = 800  / self._difficulty
+        self._shoot_speed = 1000  / self._difficulty
 
         self._exp = [explosion_1, explosion_2, explosion_3, explosion_4, explosion_5]
 
@@ -511,11 +514,11 @@ class Boss(Entity):
         if self.position.x > SCREEN_WIDTH*0.8 and self._hp > 0:
             #spawn behaviour
             self.velocity.x = -1 * self._move_speed * deltaTime
-            self.velocity.y = self._move_speed * (player.position.y - 60 - self.position.y) / 100 * deltaTime
+            self.velocity.y = self._move_speed * (player.position.y - 60 - self.position.y) / 300 / self._difficulty * deltaTime
         elif self._hp > 0:
             #live behaviour
             self.velocity.x = 0
-            self.velocity.y = self._move_speed * (player.position.y - 60 - self.position.y) / 40 * deltaTime
+            self.velocity.y = self._move_speed * (player.position.y - 60 - self.position.y) / 100 / self._difficulty * deltaTime
         else:
             #die
             self.velocity = pygame.Vector2(0, 0)
@@ -564,7 +567,9 @@ class EnemyManager:
 
         self._last_time = 0
 
-        self._count = 0
+        self._difficulty = 0
+
+        self._boss_count = 0
 
         self._boss_interval = 10
 
@@ -575,25 +580,27 @@ class EnemyManager:
         time = pygame.time.get_ticks()
         if not active_boss:    
             if time - self._last_time > self._start:
-                if self._count % self._boss_interval != 0 or self._count == 0:
-                    new_enemy = Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, randint(50, 200), randint(1, 4) / 10, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), 5)
+                if self._boss_count % self._boss_interval != 0 or self._boss_count == 0:
+                    new_enemy = Enemy(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, pygame.transform.scale(enemy_sprite, (100, 100)), pygame.transform.scale(bullet_sprite, (10, 5)), 5, self._difficulty)
                     enemies.append(new_enemy)
                     objects.append(new_enemy)
                     self._last_time = time
-                    self._count += 1
+                    self._boss_count += 1
+                    self._difficulty += 0.1
                 elif enemies == []:
-                    new_enemy = Boss(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, pygame.transform.scale(boss_sprite, (17 * 5, 40 * 5)), pygame.transform.scale(bullet_sprite, (10, 5)), randint(1, 3))
+                    new_enemy = Boss(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, pygame.transform.scale(boss_sprite, (17 * 5, 40 * 5)), pygame.transform.scale(bullet_sprite, (10, 5)), floor(randint(1, 3) + self._difficulty))
                     enemies.append(new_enemy)
                     objects.append(new_enemy)
                     self._last_time = time
                     active_boss = True
-                    self._count = 0
+                    self._boss_count = 0
                     self._boss_interval = randint(5, 15)
+                    self._difficulty += 1
 
 
 class Bullet(GameObject):
 
-    def __init__(self, position_x, position_y, direction, sprite, damage): #Add Damage Later
+    def __init__(self, position_x, position_y, direction, sprite, damage):
         super().__init__(position_x, position_y, sprite)
         self._direction = direction
         self._damage = damage
@@ -741,8 +748,11 @@ try:
 
     #audio
     player_shoot = pygame.mixer.Sound('audio/player_shoot.wav')
+    player_shoot.set_volume(0.1)
     player_power = pygame.mixer.Sound('audio/power.wav')
+    player_power.set_volume(0.5)
     enemy_explode = pygame.mixer.Sound('audio/enemy_explosion.wav')
+    enemy_explode.set_volume(0.1)
     pygame.mixer.music.load('audio/Concert_Of_The_Aerogami.wav')
 
 except Exception as e:
