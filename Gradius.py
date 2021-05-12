@@ -29,6 +29,7 @@ stop = False
 name = ''
 player = None
 active_boss = False
+player_dead = False
 
 #--------------------
 #classes, functions, gameobjects and methods
@@ -43,7 +44,9 @@ def start_game():
     global stop
     global player
     global active_boss
+    global player_dead
     
+    player_dead = False
     active_boss = False
     player_score = 0
     stop = False
@@ -223,7 +226,7 @@ class GameManager:
 
     #player control
     def update(self, events):
-    
+        global keys
         for event in events:
 
             if event.type == KEYDOWN:
@@ -233,11 +236,14 @@ class GameManager:
                 keys.remove(event.key)
                 continue
 
-
-        for object in self._objects:
-            object.update(events)
-            if stop:
-                return True
+        if player_dead == False:
+            for object in self._objects:
+                object.update(events)
+                if stop:
+                    return True
+        else :
+            keys = []
+            player.update(events)
             
         global deltaTime
         deltaTime = (pygame.time.get_ticks() - self._last_time)
@@ -324,6 +330,10 @@ class Player(Entity):
 
         self._i = 1
 
+        self._death_time = None
+
+        self._exp = [explosion_1, explosion_2, explosion_3, explosion_4, explosion_5]
+
         self._pulse = [pulse_1, pulse_2, pulse_3, pulse_4, pulse_5, pulse_6, pulse_7, pulse_8, pulse_9, pulse_10, pulse_11, pulse_12, pulse_13, pulse_14]
 
 
@@ -403,10 +413,18 @@ class Player(Entity):
                 self.heal()
         #player die
         if self._hp < 1:
-            change_gamestate(Gamestate.GAME_OVER)            
-            stop_game()
-            return True
-
+            global player_dead
+            player_dead = True
+            if self._death_time == None:
+                self._death_time = time
+            
+            if time - self._death_time < 600:
+                stage = min((time - self._death_time) // 100, 4)
+                self.sprite = self._exp[stage]
+            else:
+                change_gamestate(Gamestate.GAME_OVER)            
+                stop_game()
+                return True
         #render
         if self.do_draw:
             super().draw()
@@ -918,7 +936,7 @@ while True:
                     
                 #add key to name
                 elif len(name) < 6:
-                    print(event.unicode)
+                    #print(event.unicode)
                     name += event.unicode
             
     frame_limit.tick(60)
