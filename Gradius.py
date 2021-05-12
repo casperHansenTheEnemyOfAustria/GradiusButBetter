@@ -813,7 +813,9 @@ while True:
         pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(25, 100, 100 * player_HP, 25))
         if game_manager:
             game_manager.update(events)
-            obj.Text(20, 20, screen, f'Score:{player_score}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
+            obj.Text(20, 20, screen, f'Power:{player.power}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
+            obj.Text(150, 20, screen, f'Speed:{player.move_speed}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
+            obj.Text(330, 20, screen, f'Score:{player_score}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
 
         else:
             start_game()
@@ -844,7 +846,7 @@ while True:
 
 
             elif gamestate == Gamestate.RUNNING:
-
+                
                 if event.type == KEYDOWN:
 
                     #restart game when playing
