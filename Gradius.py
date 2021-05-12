@@ -868,7 +868,6 @@ while True:
             pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(18, 118, 204, 29))
             pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(20, 120, 200, 25))
             pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(20, 120, 100 * player_HP*2, 25))
-            print(player_HP)
 
         else:
             start_game()
