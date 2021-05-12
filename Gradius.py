@@ -227,16 +227,16 @@ class GameManager:
     #player control
     def update(self, events):
         global keys
-        for event in events:
-
-            if event.type == KEYDOWN:
-                keys.add(event.key)
-                continue #SPEED, eller så har man elifs, troligtvist fortfarande snabbare
-            if event.type == KEYUP and event.key in keys:
-                keys.remove(event.key)
-                continue
 
         if player_dead == False:
+            for event in events:
+
+                if event.type == KEYDOWN:
+                    keys.add(event.key)
+                    continue #SPEED, eller så har man elifs, troligtvist fortfarande snabbare
+                if event.type == KEYUP and event.key in keys:
+                    keys.remove(event.key)
+                    continue
             for object in self._objects:
                 object.update(events)
                 if stop:
