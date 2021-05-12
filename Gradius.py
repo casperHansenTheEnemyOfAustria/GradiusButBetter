@@ -865,7 +865,10 @@ while True:
             obj.Text(20, 20, screen, f'Score:{player_score}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
             obj.Text(20, 60, screen, f'Power:{"{:.1f}".format(player.power)}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
             obj.Text(180, 60, screen, f'Speed:{"{:.1f}".format(player.move_speed)}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
+            pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(18, 118, 204, 29))
+            pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(20, 120, 200, 25))
             pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(20, 120, 100 * player_HP*2, 25))
+            print(player_HP)
 
         else:
             start_game()
