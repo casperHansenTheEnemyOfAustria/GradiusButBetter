@@ -3,6 +3,8 @@ import pygame, sys, pickle
 from pygame.locals import *
 from random import *
 from math import *
+
+from pygame.time import Clock
 from gamestates import Gamestate
 import objects as obj
 
@@ -21,6 +23,7 @@ enemies = []
 power_ups = []
 gamestate = Gamestate.MENU
 deltaTime = 1
+frame_limit = Clock()
 muted = False
 stop = False
 name = ''
@@ -810,12 +813,13 @@ while True:
         scoreboard_menu.update(events)
     
     elif gamestate == Gamestate.RUNNING:
-        pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(25, 100, 100 * player_HP, 25))
         if game_manager:
             game_manager.update(events)
-            obj.Text(20, 20, screen, f'Power:{player.power}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
-            obj.Text(150, 20, screen, f'Speed:{player.move_speed}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
-            obj.Text(330, 20, screen, f'Score:{player_score}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
+            #stat displays that need live updating
+            obj.Text(20, 20, screen, f'Score:{player_score}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
+            obj.Text(20, 60, screen, f'Power:{"{:.1f}".format(player.power)}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
+            obj.Text(180, 60, screen, f'Speed:{"{:.1f}".format(player.move_speed)}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
+            pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(20, 120, 100 * player_HP*2, 25))
 
         else:
             start_game()
@@ -846,9 +850,7 @@ while True:
 
 
             elif gamestate == Gamestate.RUNNING:
-                
                 if event.type == KEYDOWN:
-
                     #restart game when playing
                     if  event.key == K_r:
                         start_game()
@@ -877,7 +879,8 @@ while True:
 
             elif gamestate == Gamestate.GAME_OVER:
                 #accept the name and go to scoreboard
-                if event.key == pygame.K_RETURN and len(name) > 2:
+                if event.key == pygame.K_RETURN and len(name.strip()) > 2:
+                    name = name.strip()
                     change_gamestate(Gamestate.SCOREBOARD)
                     update_score()
                     
@@ -887,7 +890,9 @@ while True:
                     
                 #add key to name
                 elif len(name) < 6:
+                    print(event.unicode)
                     name += event.unicode
             
-                                
+    frame_limit.tick(60)
+                          
     pygame.display.update()
