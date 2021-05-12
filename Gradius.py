@@ -317,6 +317,12 @@ class Player(Entity):
 
         self._shooting = False
 
+        self._animation_last_time = 0
+
+        self._i = 1
+
+        self._pulse = [pulse_1, pulse_2, pulse_3, pulse_4, pulse_5, pulse_6, pulse_7, pulse_8, pulse_9, pulse_10, pulse_11, pulse_12, pulse_13, pulse_14]
+
 
     def update(self, events):
         super().update(events)
@@ -350,6 +356,7 @@ class Player(Entity):
                 self._start_shooting_time = time
                 self._bullet_manager.tap_shoot(self.position.x, self.position.y, self.power)
                 self._shooting = True
+                self._i = 0
             if event.type == KEYUP:
                 if event.key == K_SPACE and self._start_shooting_time:
                     if time - self._start_shooting_time > 1000:
@@ -363,6 +370,12 @@ class Player(Entity):
 
 
         if self._start_shooting_time != None and time - self._start_shooting_time > 1000:
+            #  if time - self._animation_last_time > 20:
+            #      self._i += 1
+            #      if self._i == 14:
+            #          self._i = 0
+            #      self._animation_last_time = time
+            #  self.sprite = pygame.transform.scale(self._pulse[self._i], (70, 35))
             self.sprite = pygame.transform.scale(red_player_sprite, (70, 35))
         else:
             self.sprite = pygame.transform.scale(player_sprite, (70, 35))
@@ -731,6 +744,21 @@ try:
     #player sprite and assembly
     player_sprite = pygame.image.load('Sprites/Player.png').convert_alpha()
     red_player_sprite = pygame.image.load('Sprites/Red_Player.png').convert_alpha()
+
+    pulse_1 = pygame.image.load('Sprites/Pulse1.png').convert_alpha()
+    pulse_2 = pygame.image.load('Sprites/Pulse2.png').convert_alpha()
+    pulse_3 = pygame.image.load('Sprites/Pulse3.png').convert_alpha()
+    pulse_4 = pygame.image.load('Sprites/Pulse4.png').convert_alpha()
+    pulse_5 = pygame.image.load('Sprites/Pulse5.png').convert_alpha()
+    pulse_6 = pygame.image.load('Sprites/Pulse6.png').convert_alpha()
+    pulse_7 = pygame.image.load('Sprites/Pulse7.png').convert_alpha()
+    pulse_8 = pygame.image.load('Sprites/Pulse8.png').convert_alpha()
+    pulse_9 = pygame.image.load('Sprites/Pulse9.png').convert_alpha()
+    pulse_10 = pygame.image.load('Sprites/Pulse10.png').convert_alpha()
+    pulse_11 = pygame.image.load('Sprites/Pulse11.png').convert_alpha()
+    pulse_12 = pygame.image.load('Sprites/Pulse12.png').convert_alpha()
+    pulse_13 = pygame.image.load('Sprites/Pulse13.png').convert_alpha()
+    pulse_14 = pygame.image.load('Sprites/Pulse14.png').convert_alpha()
 
     power_up_sprite = pygame.image.load('Sprites/PowerUp.png').convert_alpha()
     speed_up_sprite = pygame.image.load('Sprites/SpeedUp.png').convert_alpha()
