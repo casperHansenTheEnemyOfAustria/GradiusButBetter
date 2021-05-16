@@ -28,7 +28,7 @@ Hotkeys:
 
 Credits:
 Lead game design, character design, programming - Emil Jansson
-Lead UI designer, lead sound designer, programming - Gabriel Mattsson
+Lead UI design, lead sound design, programming - Gabriel Mattsson
 
 Sound effects created using Leshylabs
 https://www.leshylabs.com/apps/sfMaker/
