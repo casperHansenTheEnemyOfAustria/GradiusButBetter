@@ -608,7 +608,7 @@ class Boss(Entity):
         elif self._hp > 0:
             self.velocity.x = 0
             #y position uses linear interpolation. Just pretend we remembered the syntax for Pygame's Lerp thing and didn't write it ourself!
-            self.velocity.y = self._move_speed * (player.position.y - 60 - self.position.y) / 100 / self._difficulty * delta_time
+            self.velocity.y = self._move_speed * (player.position.y - 75 - self.position.y) / 100 / self._difficulty * delta_time
         
         #die
         else:
@@ -625,7 +625,7 @@ class Boss(Entity):
         
         #Shoot
         if self._time - self._last_shot > self._shoot_speed and self._death_time == None:
-            self._bullet_manager.shoot(self.position.x, self.position.y + 75, -0.75, self._difficulty, 3)
+            self._bullet_manager.shoot(self.position.x-100, self.position.y + 60, -0.75, self._difficulty, 3)
             self._last_shot =self._time
 
         #Render
