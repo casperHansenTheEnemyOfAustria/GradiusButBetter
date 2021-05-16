@@ -625,7 +625,7 @@ class Boss(Entity):
         
         #Shoot
         if self._time - self._last_shot > self._shoot_speed and self._death_time == None:
-            self._bullet_manager.shoot(self.position.x-100, self.position.y + 60, -0.75, self._difficulty, 3)
+            self._bullet_manager.shoot(self.position.x-100, self.position.y + 100, -0.75, self._difficulty, 3)
             self._last_shot =self._time
 
         #Render
