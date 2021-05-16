@@ -24,11 +24,11 @@ class Text(__Object):
         self.text_color = text_color
         self.text_size = text_size
         self.font = font
-        self.display = pygame.font.SysFont(self.font,self.text_size).render(str(self.text),True,self.text_color)
+        self.display = pygame.font.Font(self.font,self.text_size).render(str(self.text),True,self.text_color)
         super().__init__(position_x, position_y, screen)
 
     def assemble(self):
-        self.display = pygame.font.SysFont(self.font,self.text_size).render(str(self.text),True,self.text_color)
+        self.display = pygame.font.Font(self.font,self.text_size).render(str(self.text),True,self.text_color)
 
     def render(self):
         """
@@ -49,7 +49,7 @@ class Button(__Object):
         self.text_size = text_size
         self.font = font
         self.background_color = background_color
-        self.display = pygame.font.SysFont(self.font,self.text_size).render(str(self.text),True,self.text_color, self.background_color)
+        self.display = pygame.font.Font(self.font,self.text_size).render(str(self.text),True,self.text_color, self.background_color)
         super().__init__(position_x, position_y, screen)
 
     @property
@@ -66,7 +66,7 @@ class Button(__Object):
             return self.clickbox.collidepoint(event)
 
     def _assemble(self):
-        self.display = pygame.font.SysFont(self.font,self.text_size).render(str(self.text),True,self.text_color)
+        self.display = pygame.font.Font(self.font,self.text_size).render(str(self.text),True,self.text_color)
 
     def render(self):
         """

@@ -107,7 +107,7 @@ def render_scores(da_screen, scores, positions):
     score_render = []
     for index in range(10):
         #creates a new text element in set positions based on score 
-        score_render.append(obj.Text(positions[index][0], positions[index][1], da_screen, '{findex}. {name} - {score}'.format(findex = index, name = scores[index]["name"], score = scores[index]["score"]), 'comicsansms', 40))
+        score_render.append(obj.Text(positions[index][0], positions[index][1], da_screen, '{findex}. {name} - {score}'.format(findex = index, name = scores[index]["name"], score = scores[index]["score"]), font_joystix, 24), )
 
     return score_render
 
@@ -873,31 +873,35 @@ try:
     enemy_explode.set_volume(0.1)
     pygame.mixer.music.load('audio/Concert_Of_The_Aerogami.wav')
 
+    #fonts
+    font_joystix = 'fonts/joystix monospace.ttf'
+    font_gomarice = 'fonts/gomarice_no_continue.ttf'
+
 except Exception as e:
     print('Not all assets could be loaded: ' + str(e) + ' at line ' + str(e.__traceback__.tb_lineno))
 
 
 ## menu assets
 menu_buttons = []
-menu_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.RUNNING),(SCREEN_WIDTH//2)-100,250,screen, ' Start! ', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to start the game
-menu_buttons.append(obj.Button(quit,(SCREEN_WIDTH//2)-80,470,screen, ' QUIT ', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to shut down the game
-menu_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.SCOREBOARD),(SCREEN_WIDTH//2)-100,360,screen, ' Score ', 'impact', 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to shut down the game
+menu_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.RUNNING),(SCREEN_WIDTH//2)-100,250,screen, ' Start! ', font_gomarice, 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to start the game
+menu_buttons.append(obj.Button(quit,(SCREEN_WIDTH//2)-80,470,screen, ' QUIT ', font_gomarice, 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to shut down the game
+menu_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.SCOREBOARD),(SCREEN_WIDTH//2)-100,360,screen, ' Score ', font_gomarice, 80, pygame.Color(255,255,255), pygame.Color(120,120,120))) # button to shut down the game
 menu_images = []
 menu_images.append(obj.Image(100, 100, screen, 10, player_sprite)) # player sprite for the menu
 for x in range(4):
     menu_images.append(obj.Image(400+200*x, 160, screen, 10, bullet_sprite)) # 1st bullet sprite for the menu
 menu_labels = []
-menu_labels.append(obj.Text(200,50,screen,'The paper plane that could!', 'comicsansms',60,pygame.Color(255,255,255)))
+menu_labels.append(obj.Text(200,50,screen,'The paper plane that could!', font_joystix,40,pygame.Color(255,255,255)))
 
 ##scoreboard assets
 scoreboard_buttons = []
-scoreboard_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.MENU), 380, 500, screen, ' Menu ', 'impact', 80, pygame.Color(255,255,255),pygame.Color(120,120,120)))
-scoreboard_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.RUNNING), 680, 500, screen, ' Play ', 'impact', 80, pygame.Color(255,255,255),pygame.Color(120,120,120)))
+scoreboard_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.MENU), 380, 500, screen, ' Menu ', font_gomarice, 80, pygame.Color(255,255,255),pygame.Color(120,120,120)))
+scoreboard_buttons.append(obj.Button(lambda:change_gamestate(Gamestate.RUNNING), 680, 500, screen, ' Play ', font_gomarice, 80, pygame.Color(255,255,255),pygame.Color(120,120,120)))
 
 scoreboard_images = []
 #no images :(
 
-scoreboard_label_positions = [(300,100), (300,150), (300,200), (300,250), (300,300), (650,100), (650,150), (650,200), (650,250), (650,300)]
+scoreboard_label_positions = [(290,100), (290,150), (290,200), (290,250), (290,300), (660,100), (660,150), (660,200), (660,250), (660,300)]
 scores = load_scores()
 scoreboard_labels = render_scores(screen, scores, scoreboard_label_positions)
 
@@ -918,8 +922,8 @@ while True:
 
     elif gamestate == Gamestate.GAME_OVER:
         #display name on the screen
-        obj.Text(500,300,screen,f'Name:{name}', 'impact', 50, pygame.Color(255,255,255)).render()
-        obj.Text(400, 80, screen, f'FINAL SCORE:{player_score}', 'impact', 80, pygame.Color(255,255,255)).render()
+        obj.Text(300, 80, screen, f'FINAL SCORE:{player_score}', font_gomarice, 100, pygame.Color(255,255,255)).render()
+        obj.Text(480,300,screen,f'Name:{name}', font_gomarice, 50, pygame.Color(255,255,255)).render()
 
     elif gamestate == Gamestate.SCOREBOARD:
 
@@ -932,9 +936,9 @@ while True:
         if game_manager:
             game_manager.update(events)
             #stat displays that need live updating
-            obj.Text(20, 20, screen, f'Score:{player_score}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
-            obj.Text(20, 60, screen, 'Power:{:.1f}'.format(player.power), 'comicsansms', 30, pygame.Color(255,255,255)).render()
-            obj.Text(180, 60, screen, 'Speed:{:.1f}'.format(player.move_speed), 'comicsansms', 30, pygame.Color(255,255,255)).render()
+            obj.Text(20, 20, screen, f'Score:{player_score}', font_joystix, 20, pygame.Color(255,255,255)).render()
+            obj.Text(20, 60, screen, 'Power:{:.1f}'.format(player.power), font_joystix, 20, pygame.Color(255,255,255)).render()
+            obj.Text(200, 60, screen, 'Speed:{:.1f}'.format(player.move_speed), font_joystix, 20, pygame.Color(255,255,255)).render()
             
             #Healthbar
             pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(18, 118, 204, 29))
