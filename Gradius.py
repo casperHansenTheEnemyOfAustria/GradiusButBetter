@@ -398,7 +398,7 @@ class Player(Entity):
 
         #Regular shoot
         if K_SPACE in keys and not self._shooting:
-            self._bullet_manager.shoot(self.position.x, self.position.y, 1, self.power, 1)
+            self._bullet_manager.shoot(self.position.x + 60, self.position.y + 30, 1, self.power, 1)
             self._shooting = True
 
         #Visual indicator for when big_shoot() is ready
@@ -545,7 +545,7 @@ class Enemy(Entity):
         
         #Shoot
         if self._time - self._last_shot > 800 and self._death_time == None:
-            self._bullet_manager.shoot(self.position.x, self.position.y + 20, direction = -0.5, multiplier = 1 , size = 1)
+            self._bullet_manager.shoot(self.position.x, self.position.y + 50, direction = -0.5, multiplier = 1 , size = 1)
             self._last_shot =self._time
 
         #Render
@@ -773,7 +773,7 @@ class BulletManager:
 
             sprite = pygame.transform.scale(self.sprite, (10 * size, 5 * size))
                 
-            temp = Bullet(origin_x + 60, origin_y + 30, direction, sprite, multiplier)
+            temp = Bullet(origin_x, origin_y, direction, sprite, multiplier)
 
             bullets.append(temp)
             objects.append(temp)
