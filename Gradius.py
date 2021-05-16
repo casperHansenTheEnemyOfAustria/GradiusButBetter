@@ -367,22 +367,18 @@ class Player(Entity):
 
         time = pygame.time.get_ticks()
 
+        self.velocity = pygame.Vector2(0, 0)
+
         #movement
-        if K_w in keys or K_UP in keys:
+        if K_w in keys and not K_s in keys or K_UP in keys and not K_DOWN in keys:
             self.velocity.y = -self.move_speed * delta_time
-        if K_s in keys or K_DOWN in keys:
+        if K_s in keys and not K_w in keys or K_DOWN in keys and not K_UP in keys:
             self.velocity.y = self.move_speed * delta_time
-        if K_a in keys or K_LEFT in keys:
+        if K_a in keys and not K_d in keys or K_LEFT in keys and not K_RIGHT in keys:
             self.velocity.x = -self.move_speed * 0.8 * delta_time
-        if K_d in keys or K_RIGHT in keys:
+        if K_d in keys and not K_a in keys or K_RIGHT in keys and not K_LEFT in keys:
             self.velocity.x = self.move_speed * 0.8 * delta_time
             
-        #if two opposite keys are pressed then DO NOT MOVE
-        if not K_w in keys and not K_s in keys and not K_UP in keys and not K_DOWN in keys or K_w in keys and K_s in keys or K_UP in keys and K_DOWN in keys:
-            self.velocity.y = 0
-        if not K_a in keys and not K_d in keys and not K_LEFT in keys and not K_RIGHT in keys or K_a in keys and K_d in keys or K_LEFT in keys and K_RIGHT in keys:
-            self.velocity.x = 0
-
         #Screen border check!
         self.position = pygame.Vector2(max(min(self.position.x, SCREEN_WIDTH - 30), -30), max(min(self.position.y, SCREEN_HEIGHT - 30), -30))
 
