@@ -349,17 +349,17 @@ class Player(Entity):
         time = pygame.time.get_ticks()
 
         #movement
-        if K_w in keys:
+        if K_w in keys or K_UP in keys:
             self.velocity.y = -self.move_speed * deltaTime
-        if K_s in keys:
+        if K_s in keys or K_DOWN in keys:
             self.velocity.y = self.move_speed * deltaTime
-        if K_a in keys:
+        if K_a in keys or K_LEFT in keys:
             self.velocity.x = -self.move_speed * 0.8 * deltaTime
-        if K_d in keys:
+        if K_d in keys or K_RIGHT in keys:
             self.velocity.x = self.move_speed * 0.8 * deltaTime
-        if not K_w in keys and not K_s in keys or K_w in keys and K_s in keys:
+        if not K_w in keys and not K_s in keys and not K_UP in keys and not K_DOWN in keys or K_w in keys and K_s in keys or K_UP in keys and K_DOWN in keys:
             self.velocity.y = 0
-        if not K_a in keys and not K_d in keys or K_a in keys and K_d in keys:
+        if not K_a in keys and not K_d in keys and not K_LEFT in keys and not K_RIGHT in keys or K_a in keys and K_d in keys or K_LEFT in keys and K_RIGHT in keys:
             self.velocity.x = 0
 
         #Screen border check!
