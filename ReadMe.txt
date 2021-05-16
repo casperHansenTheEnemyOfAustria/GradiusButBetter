@@ -25,3 +25,12 @@ Hotkeys:
     ESC - Go back to the menu
     M - Mute the audio
     Enter - Start the game
+
+Credits:
+Lead game design, character design, programming - Emil Jansson
+Lead UI designer, lead sound designer, programming - Gabriel Mattsson
+
+Sound effects created using Leshylabs
+https://www.leshylabs.com/apps/sfMaker/
+
+Special thanks - Jesus
