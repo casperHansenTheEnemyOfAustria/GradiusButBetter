@@ -13,28 +13,32 @@ SCREEN_HEIGHT = 600
 BASE_ATTACK = 5
 
 #Lists for global management
-scores = []
-player_score = 0
-player_HP = 1
-objects = []
-keys = set([])
-bullets = []
-enemies = []
-power_ups = []
-gamestate = Gamestate.MENU
-deltaTime = 1
+scores = [] #the text elements for the scoreboard
+player_score = 0 #the current score the player has achieved 
+player_HP = 1 
+objects = [] #the game element's hitboxes
+keys = set([]) #a set for the input keys, stops duplicate entries
+bullets = [] #active bullets
+enemies = [] #active enemies
+power_ups = [] #power-up hitboxes
+gamestate = Gamestate.MENU #gamestate, defaults to the start menu
+delta_time = 1 #default delta
 frame_limit = Clock()
 muted = False
 stop = False
 name = ''
-player = None
+player = None #the current player so that it is accessible globally 
 active_boss = False
-player_dead = False
+player_dead = False #stops the game as the player dies
 
 #--------------------
 #classes, functions, gameobjects and methods
 
 def start_game():
+    """
+    initiates the elements needed for the game to launch and then changes the gamestate into running
+    also resets the elements for a clean run
+    """
     global player_score
     global game_manager
     global objects
@@ -102,9 +106,25 @@ def render_scores(da_screen, scores, positions):
     """
     score_render = []
     for index in range(10):
-        score_render.append(obj.Text(positions[index][0], positions[index][1], da_screen, f'{index}. {scores[index]["name"]} - {scores[index]["score"]}', 'comicsansms', 40))
+        #creates a new text element in set positions based on score 
+        score_render.append(obj.Text(positions[index][0], positions[index][1], da_screen, '{findex}. {name} - {score}'.format(findex = index, name = scores[index]["name"], score = scores[index]["score"]), 'comicsansms', 40))
 
     return score_render
+
+
+def if_highscore():
+    """
+    checks if the score achieved is worth displaying or not
+    """
+    global scores
+    global player_score
+    global name
+
+    for i, entry in enumerate(scores):
+        if player_score >= int(entry['score']):
+            return True
+
+    return False
 
 
 def update_score():
@@ -116,16 +136,19 @@ def update_score():
     global name
     
     for i, entry in enumerate(scores):
+        #if current achieved score is larger than a stored score
         if player_score >= int(entry['score']):
+            #insert the current score in front of the score as it is larger or equal
             scores.insert(i,{'name': name, 'score': player_score})
             scores.pop(len(scores)-1)
             name = ''
             return
         
+        
 
 def load_scores():
     """
-    unpacks the scores from the pickle file, if no score has been saved it creates a new scoreboard and a new pickle file
+    unpacks the scores from the pickle file, if no score has been saved it creates a new scoreboard and a new pickle file with that scoreboard
     """
     
     try:
@@ -137,6 +160,7 @@ def load_scores():
         #creates a save file in the case of no save file
         with open('save.pickle', 'wb') as file:
 
+            #creates 10 of the scoreboard values 
             initial_scores = [{'name': 'ABC', 'score': '0'} for x in range(10)]
 
             pickle.dump(initial_scores, file)
@@ -162,7 +186,7 @@ def check_collision(hitbox1, hitbox2):
 
 def change_gamestate(new_state):
     """
-    changes the gamestate
+    changes the gamestate and window caption
     """
     global gamestate
     pygame.display.set_caption(str(new_state).split('.')[-1])
@@ -190,8 +214,8 @@ class MenuManager:
     #player control
     def update(self, events):
         for event in events:
-            #checks if the ODD
             if event.type == MOUSEBUTTONUP:
+                #checks if the mouse clicked a button
                 for button in self._buttons:
                     if button.is_clicked(event.pos):
                         button.click()
@@ -204,13 +228,7 @@ class MenuManager:
             image.render()
             
         for label in self.labels:
-            if gamestate == Gamestate.SCOREBOARD:
-                #add position to the text
-                label.render()
-
-                pass
-            else:
-                label.render()
+            label.render()
 
 
 class GameManager:
@@ -229,25 +247,27 @@ class GameManager:
         global keys
 
         if player_dead == False:
+            
             for event in events:
-
-                if event.type == KEYDOWN:
+                if event.type == KEYDOWN and event.key not in keys:
                     keys.add(event.key)
-                    continue #SPEED, eller så har man elifs, troligtvist fortfarande snabbare
-                if event.type == KEYUP and event.key in keys:
+                    continue 
+                elif event.type == KEYUP and event.key in keys:
                     keys.remove(event.key)
-                    continue
+                    
             for object in self._objects:
                 object.update(events)
                 if stop:
                     return True
-        else :
-            keys = []
+                    
+        else:
+            #this stops the explosion from the player dying from moving 
+            keys = set([])
             player.update(events)
         
-        #DeltaTime is the amount of time that the last frame took to compute, it is used to make movement consistent despite any changes in framrate
-        global deltaTime
-        deltaTime = (pygame.time.get_ticks() - self._last_time)
+        #delta_time is the amount of time that the last frame took to compute, it is used to make movement consistent despite any changes in framrate
+        global delta_time
+        delta_time = (pygame.time.get_ticks() - self._last_time)
         self._last_time = pygame.time.get_ticks()
 
 
@@ -259,7 +279,6 @@ class GameObject:
         self.sprite = sprite
         self.do_draw = True
 
-
     @property
     def hitbox(self):
         hitbox = self.sprite.get_rect()
@@ -270,7 +289,7 @@ class GameObject:
     def set_sprite(self, new_sprite):
         self.sprite = new_sprite
 
-    # Flyttar objektet
+    # Moves the gameobject
     def update(self, events):
         self.position += self.velocity
 
@@ -350,13 +369,15 @@ class Player(Entity):
 
         #movement
         if K_w in keys or K_UP in keys:
-            self.velocity.y = -self.move_speed * deltaTime
+            self.velocity.y = -self.move_speed * delta_time
         if K_s in keys or K_DOWN in keys:
-            self.velocity.y = self.move_speed * deltaTime
+            self.velocity.y = self.move_speed * delta_time
         if K_a in keys or K_LEFT in keys:
-            self.velocity.x = -self.move_speed * 0.8 * deltaTime
+            self.velocity.x = -self.move_speed * 0.8 * delta_time
         if K_d in keys or K_RIGHT in keys:
-            self.velocity.x = self.move_speed * 0.8 * deltaTime
+            self.velocity.x = self.move_speed * 0.8 * delta_time
+            
+        #if two opposite keys are pressed then DO NOT MOVE
         if not K_w in keys and not K_s in keys and not K_UP in keys and not K_DOWN in keys or K_w in keys and K_s in keys or K_UP in keys and K_DOWN in keys:
             self.velocity.y = 0
         if not K_a in keys and not K_d in keys and not K_LEFT in keys and not K_RIGHT in keys or K_a in keys and K_d in keys or K_LEFT in keys and K_RIGHT in keys:
@@ -439,8 +460,13 @@ class Player(Entity):
             
             #Actual end of the run
             else:
-                change_gamestate(Gamestate.GAME_OVER)            
+                #check if score is able to be put on scoreboard
+                if if_highscore():
+                    change_gamestate(Gamestate.GAME_OVER)            
+                else:
+                    change_gamestate(Gamestate.SCOREBOARD)            
                 stop_game()
+
                 return True
 
         #render
@@ -486,13 +512,13 @@ class Enemy(Entity):
 
         #spawn behaviour
         if self.position.x > SCREEN_WIDTH*0.8 and self._hp > 0:
-            self.velocity.x = -1 * self._move_speed * deltaTime
-            self.velocity.y = self._move_speed * self._cycle / 2 * deltaTime
+            self.velocity.x = -1 * self._move_speed * delta_time
+            self.velocity.y = self._move_speed * self._cycle / 2 * delta_time
 
         #live behaviour
         elif self._hp > 0:
-            self.velocity.x = -0.4 * self._move_speed * deltaTime
-            self.velocity.y = self._move_speed * self._cycle / 2 * deltaTime
+            self.velocity.x = -0.4 * self._move_speed * delta_time
+            self.velocity.y = self._move_speed * self._cycle / 2 * delta_time
 
         #die
         else:
@@ -578,15 +604,15 @@ class Boss(Entity):
 
         #spawn behaviour
         if self.position.x > SCREEN_WIDTH*0.8 and self._hp > 0:
-            self.velocity.x = -1 * self._move_speed * deltaTime
+            self.velocity.x = -1 * self._move_speed * delta_time
             #y position uses linear interpolation. Just pretend we remembered the syntax for Pygame's Lerp thing and didn't write it ourself!
-            self.velocity.y = self._move_speed * (player.position.y - 60 - self.position.y) / 300 / self._difficulty * deltaTime
+            self.velocity.y = self._move_speed * (player.position.y - 60 - self.position.y) / 300 / self._difficulty * delta_time
         
         #live behaviour
         elif self._hp > 0:
             self.velocity.x = 0
             #y position uses linear interpolation. Just pretend we remembered the syntax for Pygame's Lerp thing and didn't write it ourself!
-            self.velocity.y = self._move_speed * (player.position.y - 60 - self.position.y) / 100 / self._difficulty * deltaTime
+            self.velocity.y = self._move_speed * (player.position.y - 60 - self.position.y) / 100 / self._difficulty * delta_time
         
         #die
         else:
@@ -692,7 +718,7 @@ class Bullet(GameObject):
         super().draw()
         global enemies
         time = pygame.time.get_ticks()
-        self.velocity.x = self._direction * 3 * deltaTime
+        self.velocity.x = self._direction * 3 * delta_time
 
         #self._direction is 1 when the player fired the bullet
         if self._direction == 1:
@@ -803,8 +829,8 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption(str(gamestate).split('.')[-1])
 
 ## game assets
-#sprite for the bullet
 try:
+    #sprite for the bullet
     bullet_sprite = pygame.image.load('Sprites/Bullet.png').convert_alpha()
 
     #player sprite and assembly
@@ -905,13 +931,14 @@ while True:
 
         scoreboard_menu.update(events)
     
+    #if currently playing
     elif gamestate == Gamestate.RUNNING:
         if game_manager:
             game_manager.update(events)
             #stat displays that need live updating
             obj.Text(20, 20, screen, f'Score:{player_score}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
-            obj.Text(20, 60, screen, f'Power:{"{:.1f}".format(player.power)}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
-            obj.Text(180, 60, screen, f'Speed:{"{:.1f}".format(player.move_speed)}', 'comicsansms', 30, pygame.Color(255,255,255)).render()
+            obj.Text(20, 60, screen, 'Power:{:.1f}'.format(player.power), 'comicsansms', 30, pygame.Color(255,255,255)).render()
+            obj.Text(180, 60, screen, 'Speed:{:.1f}'.format(player.move_speed), 'comicsansms', 30, pygame.Color(255,255,255)).render()
             
             #Healthbar
             pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(18, 118, 204, 29))
@@ -929,9 +956,10 @@ while True:
         if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE and gamestate == Gamestate.MENU):
             quit()
 
+
         if event.type == KEYDOWN:
 
-            #global keys
+            #global mute, except for in the name entry
             if event.key == K_m and gamestate != Gamestate.GAME_OVER:
                 muted = not muted
                 if muted:
@@ -939,13 +967,13 @@ while True:
                 else:
                     pygame.mixer.music.play(-1,0.0)
 
-
+            #if currently viewing hte main menu
             elif gamestate == Gamestate.MENU :
                 #get into the game from the menu
                 if event.key == pygame.K_RETURN:
                     change_gamestate(Gamestate.RUNNING)
 
-
+            #if the game is running
             elif gamestate == Gamestate.RUNNING:
                 if event.type == KEYDOWN:
                     #restart game when playing
@@ -957,6 +985,7 @@ while True:
                         stop_game()
                         change_gamestate(Gamestate.MENU)
 
+                    #turn off audio
                     if event.key == K_m:
                         muted = not muted
                         if muted:
@@ -964,16 +993,17 @@ while True:
                         else:
                             pygame.mixer.music.play(-1,0.0)
 
-
+            #currently viewing the scoreboard
             elif gamestate == Gamestate.SCOREBOARD:
                 #go to menu from scoreboard
                 if event.key == pygame.K_ESCAPE:
                     change_gamestate(Gamestate.MENU)
                 
+                #launches the game from the scoreboard
                 if event.key == pygame.K_RETURN:
                     change_gamestate(Gamestate.RUNNING)
             
-
+            #currently at the name entry
             elif gamestate == Gamestate.GAME_OVER:
                 #accept the name and go to scoreboard
                 if event.key == pygame.K_RETURN and len(name.strip()) > 2:
