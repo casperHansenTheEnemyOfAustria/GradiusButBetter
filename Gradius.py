@@ -545,7 +545,7 @@ class Enemy(Entity):
         
         #Shoot
         if self._time - self._last_shot > 800 and self._death_time == None:
-            self._bullet_manager.shoot(self.position.x, self.position.y + 55, direction = -0.5, multiplier = 1 , size = 1)
+            self._bullet_manager.shoot(self.position.x, self.position.y + 20, direction = -0.5, multiplier = 1 , size = 1)
             self._last_shot =self._time
 
         #Render
