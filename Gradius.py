@@ -963,7 +963,7 @@ while True:
                 else:
                     pygame.mixer.music.play(-1,0.0)
 
-            #if currently viewing hte main menu
+            #if currently viewing the main menu
             elif gamestate == Gamestate.MENU :
                 #get into the game from the menu
                 if event.key == pygame.K_RETURN:
