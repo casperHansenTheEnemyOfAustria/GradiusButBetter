@@ -16,7 +16,7 @@ BASE_ATTACK = 5
 scores = [] #the text elements for the scoreboard
 player_score = 0 #the current score the player has achieved 
 player_HP = 1 
-objects = [] #the game element's hitboxes
+objects = [] #All active objects. Everything that gets updated each frame
 keys = set([]) #a set for the input keys, stops duplicate entries
 bullets = [] #active bullets
 enemies = [] #active enemies
@@ -545,7 +545,7 @@ class Enemy(Entity):
         
         #Shoot
         if self._time - self._last_shot > 800 and self._death_time == None:
-            self._bullet_manager.shoot(self.position.x, self.position.y + 55, direction = -0.5, multiplier = 1 , size = 1)
+            self._bullet_manager.shoot(self.position.x, self.position.y + 20, direction = -0.5, multiplier = 1 , size = 1)
             self._last_shot =self._time
 
         #Render
@@ -663,6 +663,8 @@ class EnemyManager:
 
         self._last_time = 0
 
+        self.total_count = 0
+
         self._difficulty = 0
 
         #How many enemies since the last boss?
@@ -686,6 +688,7 @@ class EnemyManager:
                     self._last_time = time
                     self._boss_count += 1
                     self._difficulty += 0.1
+                    self.total_count += 1
                 elif enemies == []:
                     new_enemy = Boss(SCREEN_WIDTH, SCREEN_HEIGHT * randint(3, 7) / 10, pygame.transform.scale(boss_sprite, (17 * 5, 40 * 5)), pygame.transform.scale(bullet_sprite, (10, 5)), floor(randint(1, 3) + self._difficulty))
                     enemies.append(new_enemy)
@@ -695,6 +698,7 @@ class EnemyManager:
                     self._boss_count = 0
                     self._boss_interval = randint(5, 15)
                     self._difficulty += 1
+                    self.total_count += 1
 
 
 class Bullet(GameObject):
