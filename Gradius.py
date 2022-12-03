@@ -39,16 +39,6 @@ def start_game():
     initiates the elements needed for the game to launch and then changes the gamestate into running
     also resets the elements for a clean run
     """
-    global player_score
-    global game_manager
-    global objects
-    global keys
-    global bullets
-    global enemies
-    global stop
-    global player
-    global active_boss
-    global player_dead
     
     player_dead = False
     active_boss = False
@@ -80,13 +70,6 @@ def stop_game():
     """
     resets the game variables and objects
     """
-    global objects
-    global keys
-    global bullets
-    global enemies
-    global power_ups
-    global game_manager
-    global stop
 
     stop = True
     objects = []
@@ -179,7 +162,7 @@ def save_scores():
         #saves whatever is in the scores into the file
         pickle.dump(scores, file)
 
-
+# --------------------TODO REFACTOR FROM HERE
 def check_collision(hitbox1, hitbox2):
     return hitbox1.colliderect(hitbox2)
 
